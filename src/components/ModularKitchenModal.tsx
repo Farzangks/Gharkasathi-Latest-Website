@@ -59,7 +59,7 @@ export const ModularKitchenModal: React.FC<ModularKitchenModalProps> = ({
       `*Estimated Cost:* ₹${estimatedCost.toLocaleString('en-IN')}\n` +
       `*Customer:* ${name}\n\n` +
       `Please arrange an on-site laser measurement and free 3D CAD design.`;
-    return `https://wa.me/919111100000?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/917770999122?text=${encodeURIComponent(text)}`;
   };
 
   return (

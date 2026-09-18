@@ -131,7 +131,7 @@ export const ConstructionBoqCalculator: React.FC = () => {
       `*Total Estimated Cost:* ₹${totalCost.toLocaleString('en-IN')}\n` +
       `*City:* ${leadCity}\n\n` +
       `Please arrange a free soil test and 3D architectural plan consultation.`;
-    return `https://wa.me/919111100000?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/917770999122?text=${encodeURIComponent(text)}`;
   };
 
   const handleLeadSubmit = (e: React.FormEvent) => {

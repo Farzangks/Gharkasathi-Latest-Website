@@ -29,7 +29,12 @@ import {
   ExternalLink,
   SlidersHorizontal,
   Home as HomeIcon,
-  Compass
+  Compass,
+  Lock,
+  Instagram,
+  Youtube,
+  Linkedin,
+  Twitter
 } from 'lucide-react';
 import { GharkasathiLogo, GharkasathiEmblem } from './GharkasathiLogo';
 import { 
@@ -42,12 +47,10 @@ import { AUTHENTIC_PROPERTIES, AuthenticRealEstate } from '../data/teamImages';
 import { CartItem } from '../data/cleaningCatalog';
 import { ServiceOptionsModal, ServiceWithOptions } from './ServiceOptionsModal';
 import { CartDrawer } from './CartDrawer';
-import { ExecutiveTopBar } from './ExecutiveTopBar';
 import { ConstructionBoqCalculator } from './ConstructionBoqCalculator';
 import { ScheduleSiteVisitModal } from './ScheduleSiteVisitModal';
 import { ModularKitchenModal } from './ModularKitchenModal';
 import { GharkasathiAiAssistant } from './GharkasathiAiAssistant';
-import { DomainDeploymentModal } from './DomainDeploymentModal';
 
 interface CustomerWebsiteProps {
   onOpenAdmin?: () => void;
@@ -69,7 +72,6 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
   const [isModularKitchenModalOpen, setIsModularKitchenModalOpen] = useState<boolean>(false);
   const [isRealEstateModalOpen, setIsRealEstateModalOpen] = useState<boolean>(false);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState<boolean>(false);
-  const [isDomainModalOpen, setIsDomainModalOpen] = useState<boolean>(false);
 
   // Cart State with initial authentic item
   const [cart, setCart] = useState<CartItem[]>([
@@ -160,15 +162,82 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] text-[#151515] font-sans selection:bg-red-600 selection:text-white flex flex-col">
-      {/* 1. Top Executive Control Bar */}
-      <ExecutiveTopBar 
-        currentMode="website"
-        onSelectMode={(mode) => {
-          if (mode === 'cto') onOpenAdmin?.();
-        }}
-        selectedCity={selectedCity}
-        onOpenDomainModal={() => setIsDomainModalOpen(true)}
-      />
+      {/* 1. Customer Top Contact & HQ Strip */}
+      <div className="bg-stone-900 text-stone-300 text-[11px] py-2 px-4 border-b border-stone-800">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-4">
+          <div className="flex items-center gap-1.5 text-stone-400">
+            <MapPin className="w-3 h-3 text-red-500 shrink-0" />
+            <a 
+              href="https://share.google/zXAKoT57h4zm1cYxi" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors underline decoration-stone-600 underline-offset-2 flex items-center gap-1"
+              title="Open Gharkasathi HQ on Google Maps"
+            >
+              <span>4th Floor, Currency Tower, Telibandha, VIP Road, Raipur (HQ)</span>
+              <ExternalLink className="w-2.5 h-2.5 text-stone-400" />
+            </a>
+          </div>
+          <div className="flex items-center flex-wrap justify-center gap-3 text-stone-300 font-medium">
+            <a href="tel:+917770999122" className="hover:text-white flex items-center gap-1 transition-colors">
+              <Phone className="w-3 h-3 text-red-500" />
+              <span>+91 77709 99122</span>
+            </a>
+            <span className="text-stone-600">|</span>
+            <a href="tel:+917477244487" className="hover:text-white transition-colors">
+              <span>+91 74772 44487</span>
+            </a>
+            <span className="text-stone-600 hidden md:inline">|</span>
+            <a href="mailto:support@gharkasathi.com" className="hover:text-white transition-colors hidden md:inline">
+              <span>support@gharkasathi.com</span>
+            </a>
+            <span className="text-stone-700 hidden sm:inline">|</span>
+            {/* Official Social Links in Header */}
+            <div className="flex items-center gap-2">
+              <a 
+                href="https://www.instagram.com/gharkasathi?stkn=bWJxcHJyNG93M2Rp&utm_source=qr" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-stone-400 hover:text-[#E4405F] transition-colors p-0.5" 
+                title="Follow Gharkasathi on Instagram"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-3.5 h-3.5" />
+              </a>
+              <a 
+                href="https://youtube.com/@gharkasathi?si=OY1QA5jOUFpAhXoP" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-stone-400 hover:text-[#FF0000] transition-colors p-0.5" 
+                title="Subscribe to Gharkasathi on YouTube"
+                aria-label="YouTube"
+              >
+                <Youtube className="w-3.5 h-3.5" />
+              </a>
+              <a 
+                href="https://www.linkedin.com/company/gharkasathi/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-stone-400 hover:text-[#0A66C2] transition-colors p-0.5" 
+                title="Connect with Gharkasathi on LinkedIn"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="w-3.5 h-3.5" />
+              </a>
+              <a 
+                href="https://x.com/gharkasathi?s=11" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-stone-400 hover:text-white transition-colors p-0.5" 
+                title="Follow Gharkasathi on X (Twitter)"
+                aria-label="X (Twitter)"
+              >
+                <Twitter className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* 2. Global Sleek Header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-xs">
@@ -211,14 +280,6 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                 className="text-red-600 hover:text-red-700 font-extrabold transition-colors cursor-pointer"
               >
                 Home Services
-              </button>
-              <button
-                onClick={() => setIsDomainModalOpen(true)}
-                className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-full text-[11px] font-bold cursor-pointer transition-colors"
-                title="Official Domain Deployment Status (gharkasathi.com)"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>gharkasathi.com</span>
               </button>
             </nav>
 
@@ -805,13 +866,7 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
         selectedCity={selectedCity}
       />
 
-      {/* 14. OFFICIAL DOMAIN DEPLOYMENT MODAL (gharkasathi.com) */}
-      <DomainDeploymentModal
-        isOpen={isDomainModalOpen}
-        onClose={() => setIsDomainModalOpen(false)}
-      />
-
-      {/* 15. MINIMAL, OFFICIAL CORPORATE FOOTER */}
+      {/* 14. MINIMAL, OFFICIAL CORPORATE FOOTER */}
       <footer className="bg-stone-900 text-stone-300 pt-12 pb-8 border-t border-stone-800 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -827,6 +882,55 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
               </p>
               <div className="text-[11px] text-stone-400 font-mono pt-1">
                 CIN: U45200CT2026PTC018290
+              </div>
+
+              {/* Official Social Media Channels */}
+              <div className="pt-2">
+                <p className="text-[11px] uppercase tracking-wider font-semibold text-stone-400 mb-2">
+                  Follow Us Online
+                </p>
+                <div className="flex items-center gap-2">
+                  <a
+                    href="https://www.instagram.com/gharkasathi?stkn=bWJxcHJyNG93M2Rp&utm_source=qr"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-lg bg-stone-800 hover:bg-[#E4405F] text-stone-300 hover:text-white flex items-center justify-center transition-all duration-200 shadow-xs group"
+                    title="Follow @gharkasathi on Instagram"
+                    aria-label="Instagram"
+                  >
+                    <Instagram className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  </a>
+                  <a
+                    href="https://youtube.com/@gharkasathi?si=OY1QA5jOUFpAhXoP"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-lg bg-stone-800 hover:bg-[#FF0000] text-stone-300 hover:text-white flex items-center justify-center transition-all duration-200 shadow-xs group"
+                    title="Subscribe to @gharkasathi on YouTube"
+                    aria-label="YouTube"
+                  >
+                    <Youtube className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/company/gharkasathi/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-lg bg-stone-800 hover:bg-[#0A66C2] text-stone-300 hover:text-white flex items-center justify-center transition-all duration-200 shadow-xs group"
+                    title="Connect with Gharkasathi on LinkedIn"
+                    aria-label="LinkedIn"
+                  >
+                    <Linkedin className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  </a>
+                  <a
+                    href="https://x.com/gharkasathi?s=11"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-lg bg-stone-800 hover:bg-black text-stone-300 hover:text-white flex items-center justify-center transition-all duration-200 shadow-xs group border border-transparent hover:border-stone-700"
+                    title="Follow @gharkasathi on X (Twitter)"
+                    aria-label="X (Twitter)"
+                  >
+                    <Twitter className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -874,13 +978,92 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
             {/* Column 4: Contact & Operations */}
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-white uppercase tracking-wider">Headquarters &amp; Support</h4>
-              <p className="text-xs text-stone-400 leading-relaxed">
-                📍 Gharkasathi HQ, Shankar Nagar &amp; VIP Road, Raipur, Chhattisgarh 492001
-              </p>
-              <div className="space-y-1 text-xs text-stone-300">
-                <p>📞 Phone: +91 98261 98450 / 91796 00010</p>
-                <p>💬 WhatsApp: +91 98261 98450</p>
-                <p>✉️ Email: gharkasathi@gmail.com</p>
+              <div className="text-xs text-stone-400 leading-relaxed">
+                <a 
+                  href="https://share.google/zXAKoT57h4zm1cYxi"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white flex items-start gap-1.5 group transition-colors"
+                  title="Open Gharkasathi HQ in Google Maps"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                  <span>
+                    4th Floor, Currency Tower, Telibandha, VIP Road, Raipur, Chhattisgarh 492001
+                    <span className="block text-[11px] text-red-400 group-hover:text-red-300 font-medium mt-0.5 underline">
+                      View on Google Maps &rarr;
+                    </span>
+                  </span>
+                </a>
+              </div>
+              <div className="space-y-1.5 text-xs text-stone-300">
+                <p>
+                  📞 Phone:{' '}
+                  <a href="tel:+917770999122" className="hover:text-white font-medium underline">
+                    +91 77709 99122
+                  </a>
+                  <span className="text-stone-500 mx-1">|</span>
+                  <a href="tel:+917477244487" className="hover:text-white font-medium underline">
+                    +91 74772 44487
+                  </a>
+                </p>
+                <p>
+                  💬 WhatsApp:{' '}
+                  <a 
+                    href="https://wa.me/917770999122?text=Hello%20Gharkasathi%20Support" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-emerald-400 font-medium underline"
+                  >
+                    +91 77709 99122
+                  </a>
+                </p>
+                <p>
+                  ✉️ Email:{' '}
+                  <a href="mailto:support@gharkasathi.com" className="hover:text-white font-medium underline">
+                    support@gharkasathi.com
+                  </a>
+                </p>
+                <div className="pt-2 border-t border-stone-800">
+                  <p className="text-[11px] text-stone-400 font-medium mb-1.5">Official Social Channels:</p>
+                  <div className="flex flex-wrap gap-1.5 text-[11px]">
+                    <a 
+                      href="https://www.instagram.com/gharkasathi?stkn=bWJxcHJyNG93M2Rp&utm_source=qr" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="px-2 py-1 rounded-md bg-stone-800/90 hover:bg-[#E4405F]/20 text-stone-300 hover:text-[#E4405F] transition-colors flex items-center gap-1 border border-stone-800 hover:border-[#E4405F]/40"
+                    >
+                      <Instagram className="w-3 h-3 text-[#E4405F]" />
+                      <span>Instagram</span>
+                    </a>
+                    <a 
+                      href="https://youtube.com/@gharkasathi?si=OY1QA5jOUFpAhXoP" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="px-2 py-1 rounded-md bg-stone-800/90 hover:bg-[#FF0000]/20 text-stone-300 hover:text-[#FF0000] transition-colors flex items-center gap-1 border border-stone-800 hover:border-[#FF0000]/40"
+                    >
+                      <Youtube className="w-3 h-3 text-[#FF0000]" />
+                      <span>YouTube</span>
+                    </a>
+                    <a 
+                      href="https://www.linkedin.com/company/gharkasathi/" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="px-2 py-1 rounded-md bg-stone-800/90 hover:bg-[#0A66C2]/20 text-stone-300 hover:text-[#0A66C2] transition-colors flex items-center gap-1 border border-stone-800 hover:border-[#0A66C2]/40"
+                    >
+                      <Linkedin className="w-3 h-3 text-[#0A66C2]" />
+                      <span>LinkedIn</span>
+                    </a>
+                    <a 
+                      href="https://x.com/gharkasathi?s=11" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="px-2 py-1 rounded-md bg-stone-800/90 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors flex items-center gap-1 border border-stone-800 hover:border-stone-600"
+                    >
+                      <Twitter className="w-3 h-3 text-stone-300" />
+                      <span>X</span>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -889,19 +1072,14 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
             <p>&copy; {new Date().getFullYear()} Gharkasathi Innoventure Private Limited. All rights reserved.</p>
             <div className="flex items-center gap-4">
               <span>Raipur &bull; Bhilai &bull; Durg &bull; Bilaspur</span>
-              <button
-                onClick={() => setIsDomainModalOpen(true)}
-                className="text-red-400 hover:text-red-300 font-bold underline cursor-pointer text-[11px] flex items-center gap-1"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
-                <span>Deploy gharkasathi.com</span>
-              </button>
               {onOpenAdmin && (
                 <button
                   onClick={onOpenAdmin}
-                  className="text-stone-400 hover:text-white underline cursor-pointer text-[11px]"
+                  className="text-stone-500 hover:text-stone-300 transition-colors cursor-pointer text-[11px] flex items-center gap-1.5"
+                  title="Authorized Staff & Administration Portal"
                 >
-                  CTO Console
+                  <Lock className="w-3 h-3 text-stone-500" />
+                  <span>Admin &amp; Staff Login</span>
                 </button>
               )}
             </div>

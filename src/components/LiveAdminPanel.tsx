@@ -30,7 +30,9 @@ import {
   ExternalLink,
   MessageSquare,
   Receipt,
-  Percent
+  Percent,
+  Lock,
+  KeyRound
 } from 'lucide-react';
 import { 
   LiveBooking, 
@@ -44,7 +46,7 @@ import {
 } from '../types';
 
 export const LiveAdminPanel: React.FC = () => {
-  const [activeSubTab, setActiveSubTab] = useState<'bookings' | 'services' | 'enquiries' | 'sell' | 'notifications' | 'tax' | 'gateway'>('tax');
+  const [activeSubTab, setActiveSubTab] = useState<'bookings' | 'services' | 'enquiries' | 'sell' | 'notifications' | 'tax' | 'gateway' | 'security'>('bookings');
   
   // Core Operational State
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
@@ -54,6 +56,14 @@ export const LiveAdminPanel: React.FC = () => {
   const [enquiries, setEnquiries] = useState<PropertyEnquiryItem[]>([]);
   const [sellSubmissions, setSellSubmissions] = useState<SellPropertyItem[]>([]);
   const [notifications, setNotifications] = useState<BroadcastNotification[]>([]);
+
+  // Admin Security & Password Change State
+  const [currentPasswordInput, setCurrentPasswordInput] = useState('');
+  const [newPasswordInput, setNewPasswordInput] = useState('');
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+  const [passwordStatus, setPasswordStatus] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   
   // Dynamic GST & Platform Tax Configuration State
   const [taxConfig, setTaxConfig] = useState<PlatformTaxConfig>({
@@ -98,7 +108,7 @@ export const LiveAdminPanel: React.FC = () => {
   const [sendingNotif, setSendingNotif] = useState(false);
 
   // OTP & Payment Sandbox
-  const [testPhone, setTestPhone] = useState('+91 98765 43210');
+  const [testPhone, setTestPhone] = useState('+91 77709 99122');
   const [otpSentMessage, setOtpSentMessage] = useState<string | null>(null);
   const [testOtpInput, setTestOtpInput] = useState('');
   const [otpVerifyMessage, setOtpVerifyMessage] = useState<string | null>(null);
@@ -660,6 +670,19 @@ export const LiveAdminPanel: React.FC = () => {
         >
           <ShieldCheck className="w-3.5 h-3.5 text-stone-600" />
           OTP & Payment Testing
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('security')}
+          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeSubTab === 'security'
+              ? 'border-red-600 text-red-800 bg-white rounded-t-lg'
+              : 'border-transparent text-stone-600 hover:text-stone-900'
+          }`}
+        >
+          <Lock className="w-3.5 h-3.5 text-red-600" />
+          Security &amp; Password
+          <span className="px-1.5 py-0.2 rounded text-[9px] bg-red-100 text-red-800 font-extrabold">Protected</span>
         </button>
       </div>
 
@@ -1508,6 +1531,248 @@ export const LiveAdminPanel: React.FC = () => {
                   {paymentTestResult}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================================================== */}
+      {/* SUB-TAB 7: ADMIN SECURITY & CREDENTIALS              */}
+      {/* ==================================================== */}
+      {activeSubTab === 'security' && (
+        <div className="space-y-6">
+          {/* Security Status Banner */}
+          <div className="bg-stone-900 text-white rounded-2xl p-6 shadow-sm border border-stone-800">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-400 shrink-0">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-white flex items-center gap-2">
+                    Executive Security &amp; Access Control
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+                      Locked &amp; Private
+                    </span>
+                  </h4>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    Your entire backend operations panel, booking dispatch, partner wallets, and database are password-protected. Public visitors on gharkasathi.com cannot see or access this panel.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('gharkasathi_admin_token');
+                    localStorage.removeItem('gharkasathi_admin_user');
+                    sessionStorage.removeItem('gharkasathi_admin_token');
+                    sessionStorage.removeItem('gharkasathi_admin_user');
+                    window.location.reload();
+                  }}
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-red-600/20 cursor-pointer w-full sm:w-auto"
+                >
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Lock &amp; Sign Out Now</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Change Password Card */}
+            <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs space-y-4">
+              <div className="flex items-center gap-2 pb-3 border-b border-stone-100">
+                <KeyRound className="w-5 h-5 text-red-600" />
+                <div>
+                  <h5 className="text-sm font-bold text-stone-900">
+                    Change Administrator Password
+                  </h5>
+                  <p className="text-xs text-stone-500">
+                    Update the master password used to unlock this control console.
+                  </p>
+                </div>
+              </div>
+
+              {passwordStatus && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{passwordStatus}</span>
+                  </div>
+                  <button onClick={() => setPasswordStatus(null)} className="text-emerald-700 font-bold ml-2">✕</button>
+                </div>
+              )}
+
+              {passwordError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                    <span>{passwordError}</span>
+                  </div>
+                  <button onClick={() => setPasswordError(null)} className="text-red-700 font-bold ml-2">✕</button>
+                </div>
+              )}
+
+              <form 
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setPasswordError(null);
+                  setPasswordStatus(null);
+
+                  if (!currentPasswordInput || !newPasswordInput) {
+                    setPasswordError('Please enter current and new password.');
+                    return;
+                  }
+
+                  if (newPasswordInput !== confirmPasswordInput) {
+                    setPasswordError('New password and confirmation do not match.');
+                    return;
+                  }
+
+                  if (newPasswordInput.length < 6) {
+                    setPasswordError('New password must be at least 6 characters.');
+                    return;
+                  }
+
+                  setIsChangingPassword(true);
+
+                  try {
+                    const token = localStorage.getItem('gharkasathi_admin_token') || sessionStorage.getItem('gharkasathi_admin_token');
+                    const res = await fetch('/api/admin/change-password', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        currentPassword: currentPasswordInput,
+                        newPassword: newPasswordInput,
+                        token
+                      })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                      if (data.token) {
+                        localStorage.setItem('gharkasathi_admin_token', data.token);
+                      }
+                      setPasswordStatus('Admin password successfully updated!');
+                      setCurrentPasswordInput('');
+                      setNewPasswordInput('');
+                      setConfirmPasswordInput('');
+                    } else {
+                      setPasswordError(data.error || 'Failed to update password. Verify current password.');
+                    }
+                  } catch {
+                    setPasswordError('Network error while updating password.');
+                  } finally {
+                    setIsChangingPassword(false);
+                  }
+                }}
+                className="space-y-3 pt-1"
+              >
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    value={currentPasswordInput}
+                    onChange={(e) => setCurrentPasswordInput(e.target.value)}
+                    placeholder="Enter current password (e.g. GharKaSathi@2026)"
+                    required
+                    className="w-full border border-stone-300 rounded-xl px-3.5 py-2 text-xs text-stone-900 bg-stone-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={newPasswordInput}
+                    onChange={(e) => setNewPasswordInput(e.target.value)}
+                    placeholder="Minimum 6 characters"
+                    required
+                    className="w-full border border-stone-300 rounded-xl px-3.5 py-2 text-xs text-stone-900 bg-stone-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={confirmPasswordInput}
+                    onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                    placeholder="Re-type new password"
+                    required
+                    className="w-full border border-stone-300 rounded-xl px-3.5 py-2 text-xs text-stone-900 bg-stone-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-600"
+                  />
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isChangingPassword}
+                    className="w-full py-2.5 px-4 bg-stone-900 hover:bg-black disabled:bg-stone-400 text-white text-xs font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {isChangingPassword ? (
+                      <span>Updating Password...</span>
+                    ) : (
+                      <>
+                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                        <span>Save &amp; Activate New Password</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Access Protocol & Instructions Card */}
+            <div className="bg-stone-50 rounded-2xl p-6 border border-stone-200 shadow-xs space-y-4">
+              <h5 className="text-sm font-bold text-stone-900 flex items-center gap-2 pb-3 border-b border-stone-200">
+                <Lock className="w-4 h-4 text-stone-700" />
+                <span>Admin Login Protocol &amp; Shortcuts</span>
+              </h5>
+
+              <div className="space-y-3 text-xs text-stone-600 leading-relaxed">
+                <div className="p-3 bg-white rounded-xl border border-stone-200/80 space-y-1">
+                  <div className="font-bold text-stone-800">
+                    1. Stealth Keyboard Shortcut
+                  </div>
+                  <p className="text-[11px] text-stone-500">
+                    Press <kbd className="px-1.5 py-0.5 bg-stone-100 border border-stone-300 rounded text-stone-800 font-mono text-[10px]">Ctrl</kbd> + <kbd className="px-1.5 py-0.5 bg-stone-100 border border-stone-300 rounded text-stone-800 font-mono text-[10px]">Shift</kbd> + <kbd className="px-1.5 py-0.5 bg-stone-100 border border-stone-300 rounded text-stone-800 font-mono text-[10px]">A</kbd> from anywhere on the customer website to summon the Admin Login Gate.
+                  </p>
+                </div>
+
+                <div className="p-3 bg-white rounded-xl border border-stone-200/80 space-y-1">
+                  <div className="font-bold text-stone-800">
+                    2. Footer Staff Link
+                  </div>
+                  <p className="text-[11px] text-stone-500">
+                    At the bottom of the public website footer, click <strong>Admin &amp; Staff Login</strong> with the lock icon. It requires ID and password before opening this panel.
+                  </p>
+                </div>
+
+                <div className="p-3 bg-white rounded-xl border border-stone-200/80 space-y-1">
+                  <div className="font-bold text-stone-800">
+                    3. URL Direct Gate
+                  </div>
+                  <p className="text-[11px] text-stone-500">
+                    Navigating to <code>gharkasathi.com/#admin</code> or <code>gharkasathi.com/?admin=true</code> prompts the security gate automatically.
+                  </p>
+                </div>
+
+                <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200/80 text-[11.5px] text-emerald-800 flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Privacy Confirmed:</strong> Regular users or prospective clients browsing properties, home cleaning, or construction will see zero admin controls, zero database tables, and zero technical tabs.
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

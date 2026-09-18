@@ -84,8 +84,8 @@ app.get('/', (req, res) => {
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           Raipur & NCR Active
         </span>
-        <a href="tel:+919111100000" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
-          Call Helpline: +91 91111 00000
+        <a href="tel:+917770999122" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
+          Call Helpline: +91 77709 99122
         </a>
       </div>
     </div>

@@ -45,7 +45,7 @@ export const ScheduleSiteVisitModal: React.FC<ScheduleSiteVisitModalProps> = ({
       `*Time Slot:* ${visitSlot === 'morning' ? '10:00 AM - 1:00 PM' : '3:00 PM - 6:00 PM'}\n` +
       `*Cab Pickup Needed:* ${needCabPickup ? `Yes (Address: ${pickupAddress || 'Provided on call'})` : 'No (Self Drive)'}\n\n` +
       `Please assign a senior property advisor.`;
-    return `https://wa.me/919111100000?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/917770999122?text=${encodeURIComponent(text)}`;
   };
 
   return (

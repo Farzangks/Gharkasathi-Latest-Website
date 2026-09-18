@@ -10,7 +10,8 @@ import {
   Layers,
   CheckCircle2,
   Rocket,
-  Globe
+  Globe,
+  Lock
 } from 'lucide-react';
 import { GharkasathiEmblem } from './GharkasathiLogo';
 
@@ -21,13 +22,15 @@ interface ExecutiveTopBarProps {
   onSelectMode: (mode: AppViewMode) => void;
   selectedCity?: string;
   onOpenDomainModal?: () => void;
+  onLockAdmin?: () => void;
 }
 
 export const ExecutiveTopBar: React.FC<ExecutiveTopBarProps> = ({
   currentMode,
   onSelectMode,
   selectedCity = 'Raipur',
-  onOpenDomainModal
+  onOpenDomainModal,
+  onLockAdmin
 }) => {
   return (
     <aside aria-label="Executive Control Header" className="bg-stone-950 text-stone-200 border-b border-stone-800 text-xs sticky top-0 z-50 shadow-md">
@@ -86,6 +89,17 @@ export const ExecutiveTopBar: React.FC<ExecutiveTopBarProps> = ({
               <span>CTO & Admin</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             </button>
+
+            {currentMode === 'cto' && onLockAdmin && (
+              <button
+                onClick={onLockAdmin}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-950/80 hover:bg-red-900 text-red-300 hover:text-white border border-red-800/80 text-[11px] font-bold transition-all cursor-pointer ml-1"
+                title="Lock admin session and return to customer website"
+              >
+                <Lock className="w-3 h-3 text-red-400" />
+                <span>Lock &amp; Exit</span>
+              </button>
+            )}
           </div>
 
           {/* Right: Domain Deploy CTA & Badges */}

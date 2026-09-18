@@ -35,7 +35,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [selectedSlot, setSelectedSlot] = useState<'express' | 'morning' | 'afternoon'>('express');
   const [address, setAddress] = useState('Flat 402, Royal Palms, Shankar Nagar, Raipur');
   const [customerName, setCustomerName] = useState('Pooja Agrawal');
-  const [customerPhone, setCustomerPhone] = useState('9826198450');
+  const [customerPhone, setCustomerPhone] = useState('7770999122');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedBooking, setConfirmedBooking] = useState<{
     bookingId: string;

@@ -137,6 +137,15 @@ let platformTaxConfig = {
   updatedAt: new Date().toISOString()
 };
 
+// Protected Admin Authentication Configuration
+let adminCredentials = {
+  username: process.env.ADMIN_USERNAME || 'admin',
+  secondaryEmail: 'gharkasathi@gmail.com',
+  password: process.env.ADMIN_PASSWORD || 'GharKaSathi@2026',
+  sessionToken: 'gks_adm_' + crypto.randomBytes(24).toString('hex'),
+  lastLogin: null as string | null
+};
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -219,6 +228,85 @@ async function startServer() {
         'Enter gharkasathi.com and www.gharkasathi.com',
         'Add the verified DNS records to Hostinger/Registrar DNS Manager'
       ]
+    });
+  });
+
+  // 2.3 Admin Security Authentication Endpoints (Password Protected)
+  app.post('/api/admin/login', (req, res) => {
+    const { username, password } = req.body || {};
+    
+    if (!username || !password) {
+      return res.status(400).json({ success: false, error: 'Username/Email and Password are required.' });
+    }
+
+    const inputUser = String(username).trim().toLowerCase();
+    const inputPass = String(password).trim();
+    const validUser = adminCredentials.username.toLowerCase();
+    const validEmail = adminCredentials.secondaryEmail.toLowerCase();
+
+    if ((inputUser === validUser || inputUser === validEmail) && inputPass === adminCredentials.password) {
+      // Regenerate fresh session token
+      adminCredentials.sessionToken = 'gks_adm_' + crypto.randomBytes(24).toString('hex');
+      adminCredentials.lastLogin = new Date().toISOString();
+      
+      return res.json({
+        success: true,
+        message: 'Admin authentication successful',
+        token: adminCredentials.sessionToken,
+        adminUser: {
+          username: adminCredentials.username,
+          email: adminCredentials.secondaryEmail,
+          role: 'SUPER_ADMIN',
+          lastLogin: adminCredentials.lastLogin
+        }
+      });
+    }
+
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid administrator credentials. Access denied.'
+    });
+  });
+
+  app.post('/api/admin/verify-token', (req, res) => {
+    const { token } = req.body || {};
+    const authHeader = req.headers.authorization;
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    const providedToken = token || bearerToken;
+
+    if (providedToken && providedToken === adminCredentials.sessionToken) {
+      return res.json({
+        valid: true,
+        adminUser: {
+          username: adminCredentials.username,
+          email: adminCredentials.secondaryEmail,
+          role: 'SUPER_ADMIN',
+          lastLogin: adminCredentials.lastLogin
+        }
+      });
+    }
+
+    return res.status(401).json({ valid: false, error: 'Session expired or invalid.' });
+  });
+
+  app.post('/api/admin/change-password', (req, res) => {
+    const { currentPassword, newPassword, token } = req.body || {};
+    
+    if (token !== adminCredentials.sessionToken && currentPassword !== adminCredentials.password) {
+      return res.status(403).json({ success: false, error: 'Unauthorized to change password.' });
+    }
+
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+      return res.status(400).json({ success: false, error: 'New password must be at least 6 characters.' });
+    }
+
+    adminCredentials.password = newPassword.trim();
+    adminCredentials.sessionToken = 'gks_adm_' + crypto.randomBytes(24).toString('hex');
+
+    return res.json({
+      success: true,
+      message: 'Admin password updated successfully. New token issued.',
+      token: adminCredentials.sessionToken
     });
   });
 

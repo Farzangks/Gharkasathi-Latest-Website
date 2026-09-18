@@ -41,7 +41,7 @@ export const ArchitectureConsultationModal: React.FC<ArchitectureConsultationMod
       `*Plot Facing:* ${facing}\n` +
       `*Requirement:* ${serviceNeeded}\n\n` +
       `Please connect me with the Chief Architect for 2D Vastu Floor Plan & 3D Elevation design.`;
-    return `https://wa.me/919111100000?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/917770999122?text=${encodeURIComponent(text)}`;
   };
 
   return (

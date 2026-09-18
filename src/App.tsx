@@ -27,8 +27,9 @@ import { CustomerWebsite } from './components/CustomerWebsite';
 import { ExecutiveTopBar } from './components/ExecutiveTopBar';
 import { GharkasathiAiAssistant } from './components/GharkasathiAiAssistant';
 import { DomainDeploymentModal } from './components/DomainDeploymentModal';
+import { AdminLoginModal } from './components/AdminLoginModal';
 import { ARCHITECTURE_COMPONENTS, GHARKASATHI_METRICS } from './data/architectureData';
-import { Bug, Rocket } from 'lucide-react';
+import { Bug, Rocket, Lock } from 'lucide-react';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -38,6 +39,59 @@ export default function App() {
   const [isDomainModalOpen, setIsDomainModalOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'launch' | 'admin' | 'glitches' | 'hostinger' | 'architecture' | 'topology' | 'roadmap' | 'simulator' | 'drive'>('launch');
   const [authError, setAuthError] = useState<string | null>(null);
+
+  // Protected Admin Portal Authentication State
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
+    return !!(
+      localStorage.getItem('gharkasathi_admin_token') || 
+      sessionStorage.getItem('gharkasathi_admin_token')
+    );
+  });
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
+
+  // Shortcut (Ctrl+Shift+A) or hash/query param for admin login
+  useEffect(() => {
+    const checkAdminQuery = () => {
+      if (window.location.hash === '#admin' || window.location.search.includes('admin=true')) {
+        handleRequestAdminAccess();
+      }
+    };
+    checkAdminQuery();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+Shift+A or Cmd+Shift+A opens protected Admin Login
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        handleRequestAdminAccess();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAdminAuthenticated]);
+
+  const handleRequestAdminAccess = () => {
+    if (isAdminAuthenticated) {
+      setViewMode('cto');
+    } else {
+      setIsAdminModalOpen(true);
+    }
+  };
+
+  const handleAdminLoginSuccess = () => {
+    setIsAdminAuthenticated(true);
+    setIsAdminModalOpen(false);
+    setViewMode('cto');
+  };
+
+  const handleLockAdmin = () => {
+    localStorage.removeItem('gharkasathi_admin_token');
+    localStorage.removeItem('gharkasathi_admin_user');
+    sessionStorage.removeItem('gharkasathi_admin_token');
+    sessionStorage.removeItem('gharkasathi_admin_user');
+    setIsAdminAuthenticated(false);
+    setViewMode('website');
+  };
 
   // Initialize Firebase Auth listener
   useEffect(() => {
@@ -89,20 +143,28 @@ export default function App() {
     return (
       <div className="relative">
         <CustomerWebsite 
-          onOpenAdmin={() => setViewMode('cto')} 
+          onOpenAdmin={handleRequestAdminAccess} 
         />
-        
-        {/* Floating Quick Action: Switch to CTO Console */}
-        <div className="fixed bottom-4 left-4 z-40 hidden sm:flex items-center gap-2">
-          <button
-            onClick={() => setViewMode('cto')}
-            className="flex items-center gap-2 px-3.5 py-2 bg-stone-900/95 hover:bg-black text-white text-[11px] font-bold rounded-full shadow-2xl border border-stone-700/80 backdrop-blur-md transition-all active:scale-95 cursor-pointer"
-            title="Open CTO Architecture & Operations Console"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>CTO Console</span>
-          </button>
-        </div>
+
+        {/* Protected Admin Security Login Modal */}
+        <AdminLoginModal 
+          isOpen={isAdminModalOpen}
+          onClose={() => setIsAdminModalOpen(false)}
+          onSuccess={handleAdminLoginSuccess}
+        />
+      </div>
+    );
+  }
+
+  // Strict Security Check: If CTO view is accessed without Admin authentication, prompt login immediately
+  if (!isAdminAuthenticated) {
+    return (
+      <div className="min-h-screen bg-stone-900 flex items-center justify-center p-4">
+        <AdminLoginModal 
+          isOpen={true}
+          onClose={() => setViewMode('website')}
+          onSuccess={handleAdminLoginSuccess}
+        />
       </div>
     );
   }
@@ -112,8 +174,15 @@ export default function App() {
       {/* Top Navigation */}
       <ExecutiveTopBar 
         currentMode="cto"
-        onSelectMode={(mode) => setViewMode(mode)}
+        onSelectMode={(mode) => {
+          if (mode === 'cto' && !isAdminAuthenticated) {
+            setIsAdminModalOpen(true);
+          } else {
+            setViewMode(mode);
+          }
+        }}
         onOpenDomainModal={() => setIsDomainModalOpen(true)}
+        onLockAdmin={handleLockAdmin}
       />
       <Header 
         user={user}

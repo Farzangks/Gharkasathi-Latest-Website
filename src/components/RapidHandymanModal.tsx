@@ -59,7 +59,7 @@ export const RapidHandymanModal: React.FC<RapidHandymanModalProps> = ({
       `*Address:* ${address}\n` +
       `*Problem:* ${issueDescription || 'General breakdown / repair'}\n\n` +
       `Please dispatch the nearest active Gharkasathi technician in uniform.`;
-    return `https://wa.me/919111100000?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/917770999122?text=${encodeURIComponent(text)}`;
   };
 
   return (
