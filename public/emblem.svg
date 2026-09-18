@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none">
+  <!-- TM Superscript at Top Right -->
+  <text 
+    x="142" 
+    y="26" 
+    fill="currentColor" 
+    font-family="system-ui, -apple-system, sans-serif" 
+    font-size="16" 
+    font-weight="800"
+  >TM</text>
+
+  <!-- House & Protective Hands Monoline Strokes -->
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" transform="translate(10, 10)">
+    <!-- Chimney on Right Roof Slope -->
+    <path d="M 88 38 L 88 22 L 97 22 L 97 46" />
+
+    <!-- Triangular Gable Roof -->
+    <path d="M 36 50 L 72 22 L 108 50" stroke-width="5.5" />
+
+    <!-- House Outer Walls & Base -->
+    <path d="M 46 50 L 46 92 L 98 92 L 98 50" />
+
+    <!-- Centered Entrance Door -->
+    <path d="M 62 92 L 62 65 L 82 65 L 82 92" />
+
+    <!-- Hands Cupping House -->
+    <!-- Left Outer Hand Contour -->
+    <path d="M 68 116 L 26 116 C 18 116 14 110 14 102 L 14 36 C 14 29 20 29 20 36 L 20 86" />
+
+    <!-- Right Outer Hand Contour -->
+    <path d="M 76 116 L 118 116 C 126 116 130 110 130 102 L 130 36 C 130 29 124 29 124 36 L 124 86" />
+
+    <!-- Left Inner Palm Lines -->
+    <path d="M 23 70 L 56 104 C 62 109 68 109 71 109" stroke-width="4.5" />
+    <path d="M 30 96 L 62 110" stroke-width="4" />
+
+    <!-- Right Inner Palm Lines -->
+    <path d="M 121 70 L 88 104 C 82 109 76 109 73 109" stroke-width="4.5" />
+    <path d="M 114 96 L 82 110" stroke-width="4" />
+
+    <!-- Bottom Platform Ground Lines -->
+    <line x1="20" y1="124" x2="68" y2="124" stroke-width="5" />
+    <line x1="76" y1="124" x2="124" y2="124" stroke-width="5" />
+  </g>
+</svg>

@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 140" fill="none">
+  <!-- Wordmark & Tagline on the Left -->
+  <g id="brand-text" fill="currentColor">
+    <!-- Brand Name: Gharkasathi -->
+    <text 
+      x="0" 
+      y="66" 
+      font-family="'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+      font-size="52" 
+      font-weight="800" 
+      letter-spacing="-0.5px"
+    >Gharkasathi</text>
+    
+    <!-- Official Slogan: All Your Home Needs, Under One Roof. -->
+    <text 
+      x="2" 
+      y="98" 
+      font-family="'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+      font-size="16.5" 
+      font-weight="500" 
+      letter-spacing="0.1px"
+      opacity="0.92"
+    >All Your Home Needs, Under One Roof.</text>
+  </g>
+
+  <!-- Trademark Emblem on the Right -->
+  <g id="brand-emblem" transform="translate(365, 8)">
+    <!-- TM Superscript at Top Right -->
+    <text 
+      x="126" 
+      y="22" 
+      fill="currentColor" 
+      font-family="system-ui, -apple-system, sans-serif" 
+      font-size="15" 
+      font-weight="800"
+    >TM</text>
+
+    <!-- House & Protective Hands Monoline Strokes -->
+    <g stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <!-- Chimney on Right Roof Slope -->
+      <path d="M 88 38 L 88 22 L 97 22 L 97 46" />
+
+      <!-- Triangular Gable Roof -->
+      <path d="M 36 50 L 72 22 L 108 50" stroke-width="5" />
+
+      <!-- House Outer Walls & Base -->
+      <path d="M 46 50 L 46 92 L 98 92 L 98 50" />
+
+      <!-- Centered Entrance Door -->
+      <path d="M 62 92 L 62 65 L 82 65 L 82 92" />
+
+      <!-- Hands Cupping House -->
+      <!-- Left Outer Hand Contour -->
+      <path d="M 68 116 L 26 116 C 18 116 14 110 14 102 L 14 36 C 14 29 20 29 20 36 L 20 86" />
+
+      <!-- Right Outer Hand Contour -->
+      <path d="M 76 116 L 118 116 C 126 116 130 110 130 102 L 130 36 C 130 29 124 29 124 36 L 124 86" />
+
+      <!-- Left Inner Palm Lines -->
+      <path d="M 23 70 L 56 104 C 62 109 68 109 71 109" stroke-width="4" />
+      <path d="M 30 96 L 62 110" stroke-width="3.5" />
+
+      <!-- Right Inner Palm Lines -->
+      <path d="M 121 70 L 88 104 C 82 109 76 109 73 109" stroke-width="4" />
+      <path d="M 114 96 L 82 110" stroke-width="3.5" />
+
+      <!-- Bottom Platform Ground Lines -->
+      <line x1="20" y1="124" x2="68" y2="124" stroke-width="4.5" />
+      <line x1="76" y1="124" x2="124" y2="124" stroke-width="4.5" />
+    </g>
+  </g>
+</svg>

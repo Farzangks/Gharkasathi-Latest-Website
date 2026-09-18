@@ -1,6 +1,6 @@
 {
   "name": "Gharkasathi",
-  "description": "All your property Need, Under One Roof. Explore Real Estate, Construction, Interior, and 9 Core Home Services in Raipur and Chhattisgarh.",
+  "description": "All Your Home Needs, Under One Roof. Explore Real Estate, Construction, Interior, and 9 Core Home Services in Raipur and Chhattisgarh.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -1,8 +1,17 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import crypto from 'crypto';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
+import { ACADEMY_COURSES } from './src/data/academyCourses';
+import { 
+  PartnerJourneyStatus, 
+  PartnerPerformanceTier, 
+  PartnerCertificationItem, 
+  TrainingProgress, 
+  PracticalAssessmentRecord 
+} from './src/types';
 
 interface Booking {
   id: string;
@@ -24,12 +33,30 @@ interface Provider {
   id: string;
   name: string;
   phone: string;
+  whatsapp?: string;
   skills: string[];
   status: 'online' | 'on_job' | 'offline';
   rating: number;
   completedJobs: number;
   zone: string;
+  city?: string;
   walletBalance: number;
+  verificationStatus: 'verified' | 'pending_verification' | 'rejected' | 'suspended';
+  journeyStatus: PartnerJourneyStatus;
+  performanceTier?: PartnerPerformanceTier;
+  isCsgspCertified: boolean;
+  certifiedCategories: string[];
+  certifications?: PartnerCertificationItem[];
+  experienceYears?: number;
+  aadharNumber?: string;
+  upiId?: string;
+  vehicleType?: string;
+  toolsOwned?: boolean;
+  appliedAt?: string;
+  verifiedAt?: string;
+  verifiedBy?: string;
+  onboardingSource?: 'manual_admin' | 'self_registered' | 'walk_in';
+  gharkasathiScore?: number;
 }
 
 // In-memory state storage (persisted across live requests in runtime)
@@ -41,12 +68,12 @@ const bookings: Booking[] = [
     customerName: 'Aarav Sharma',
     customerPhone: '+91 98201 44810',
     serviceType: 'Emergency Plumbing Repair',
-    address: 'Flat 402, Lotus Heights, Sector 18, Noida',
+    address: 'Flat 402, Wallfort City, Bhatagaon, Raipur',
     scheduledTime: 'Today, 2:00 PM',
     amount: 599,
     status: 'partner_assigned',
     partnerId: 'PRV-101',
-    partnerName: 'Rajesh Kumar',
+    partnerName: 'Rajesh Kumar Sonkar',
     isPaid: true,
     paymentId: 'pay_Nz82K391820',
     createdAt: new Date(Date.now() - 3600000).toISOString(),
@@ -56,7 +83,7 @@ const bookings: Booking[] = [
     customerName: 'Priya Verma',
     customerPhone: '+91 98711 23091',
     serviceType: 'AC Deep Chemical Jet Service',
-    address: 'House 78, Green Glen Layout, Bengaluru',
+    address: 'House 78, Shankar Nagar Main Road, Raipur',
     scheduledTime: 'Today, 4:30 PM',
     amount: 1499,
     status: 'pending_match',
@@ -68,63 +95,333 @@ const bookings: Booking[] = [
     customerName: 'Vikram Mehta',
     customerPhone: '+91 99302 55912',
     serviceType: 'Complete Home Electrical Wiring Audit',
-    address: 'B-12, Panchsheel Enclave, New Delhi',
+    address: 'B-12, Chouhan Green Valley, Junwani, Bhilai',
     scheduledTime: 'Tomorrow, 11:00 AM',
     amount: 899,
     status: 'in_progress',
     partnerId: 'PRV-102',
-    partnerName: 'Sunil Rathore',
+    partnerName: 'Sunil Dewangan',
     isPaid: true,
     paymentId: 'pay_Mx49Q109482',
     createdAt: new Date(Date.now() - 7200000).toISOString(),
   },
 ];
 
+const partnerCertificates: PartnerCertificationItem[] = [
+  {
+    id: 'CERT-001',
+    partnerId: 'PRV-101',
+    partnerName: 'Rajesh Kumar Sonkar',
+    category: 'Plumbing',
+    certificateId: 'GK-CERT-PL-2026-000101',
+    issueDate: '2026-08-15T10:00:00.000Z',
+    validUntil: '2028-08-15T10:00:00.000Z',
+    status: 'ACTIVE',
+    quizScore: 92,
+    practicalScore: 28,
+    evaluatorName: 'Er. Sandeep Baghel (Chief Technical Evaluator)',
+    authorizedBy: 'Director of Skill Training & Quality, Gharkasathi Innoventure Private Limited',
+    qrPayload: 'https://gharkasathi.com/verify-credential/GK-CERT-PL-2026-000101'
+  },
+  {
+    id: 'CERT-002',
+    partnerId: 'PRV-102',
+    partnerName: 'Sunil Dewangan',
+    category: 'Electrical',
+    certificateId: 'GK-CERT-EL-2026-000102',
+    issueDate: '2026-07-20T10:00:00.000Z',
+    validUntil: '2028-07-20T10:00:00.000Z',
+    status: 'ACTIVE',
+    quizScore: 96,
+    practicalScore: 29,
+    evaluatorName: 'Er. Alok Chandrakar (Electrical Inspector & Trainer)',
+    authorizedBy: 'Director of Skill Training & Quality, Gharkasathi Innoventure Private Limited',
+    qrPayload: 'https://gharkasathi.com/verify-credential/GK-CERT-EL-2026-000102'
+  }
+];
+
+const partnerTrainingProgress: TrainingProgress[] = [
+  {
+    partnerId: 'PRV-101',
+    courseId: 'GK-STD-001',
+    status: 'assessment_passed',
+    completedLessonIds: ['LES-STD-101', 'LES-STD-102', 'LES-STD-201', 'LES-STD-202', 'LES-STD-301', 'LES-STD-401'],
+    quizAttempts: 1,
+    bestQuizScore: 100,
+    lastAttemptAt: '2026-08-12T14:00:00Z',
+    assessmentDate: '2026-08-12T14:30:00Z'
+  },
+  {
+    partnerId: 'PRV-101',
+    courseId: 'GK-PLM-101',
+    status: 'assessment_passed',
+    completedLessonIds: ['LES-PLM-101', 'LES-PLM-102', 'LES-PLM-201'],
+    quizAttempts: 1,
+    bestQuizScore: 92,
+    lastAttemptAt: '2026-08-15T09:30:00Z',
+    practicalPassed: true,
+    practicalScore: 28,
+    practicalComments: 'Excellent copper & CPVC solvent joint technique, 100% compliant with pressure safety.',
+    evaluatorName: 'Er. Sandeep Baghel (Chief Technical Evaluator)',
+    assessmentDate: '2026-08-15T10:00:00Z'
+  },
+  {
+    partnerId: 'PRV-102',
+    courseId: 'GK-STD-001',
+    status: 'assessment_passed',
+    completedLessonIds: ['LES-STD-101', 'LES-STD-102', 'LES-STD-201', 'LES-STD-202', 'LES-STD-301', 'LES-STD-401'],
+    quizAttempts: 1,
+    bestQuizScore: 100,
+    lastAttemptAt: '2026-07-18T10:00:00Z',
+    assessmentDate: '2026-07-18T10:30:00Z'
+  },
+  {
+    partnerId: 'PRV-102',
+    courseId: 'GK-ELE-101',
+    status: 'assessment_passed',
+    completedLessonIds: ['LES-ELE-101', 'LES-ELE-201'],
+    quizAttempts: 1,
+    bestQuizScore: 96,
+    lastAttemptAt: '2026-07-20T09:00:00Z',
+    practicalPassed: true,
+    practicalScore: 29,
+    practicalComments: 'Perfect multimeter safety, neutral isolation, and clean distribution board dressing.',
+    evaluatorName: 'Er. Alok Chandrakar (Electrical Inspector & Trainer)',
+    assessmentDate: '2026-07-20T10:00:00Z'
+  },
+  {
+    partnerId: 'PRV-103',
+    courseId: 'GK-STD-001',
+    status: 'assessment_passed',
+    completedLessonIds: ['LES-STD-101', 'LES-STD-102', 'LES-STD-201', 'LES-STD-202'],
+    quizAttempts: 1,
+    bestQuizScore: 85,
+    lastAttemptAt: '2026-08-22T10:00:00Z'
+  },
+  {
+    partnerId: 'PRV-103',
+    courseId: 'GK-APP-101',
+    status: 'in_progress',
+    completedLessonIds: ['LES-APP-101'],
+    quizAttempts: 0,
+    bestQuizScore: 0
+  }
+];
+
+const practicalAssessments: PracticalAssessmentRecord[] = [
+  {
+    id: 'PRAC-001',
+    partnerId: 'PRV-101',
+    partnerName: 'Rajesh Kumar Sonkar',
+    category: 'Plumbing',
+    evaluatorName: 'Er. Sandeep Baghel',
+    evaluatorRole: 'Gharkasathi Skill Evaluator',
+    assessmentDate: '2026-08-15T10:00:00Z',
+    scores: {
+      toolHandling: 5,
+      diagnosis: 5,
+      installation: 4,
+      safety: 5,
+      finishing: 4,
+      cleanliness: 5
+    },
+    totalScore: 28,
+    passed: true,
+    comments: 'Flawless safety protocol and rapid fault diagnosis on pressurized manifold.'
+  },
+  {
+    id: 'PRAC-002',
+    partnerId: 'PRV-102',
+    partnerName: 'Sunil Dewangan',
+    category: 'Electrical',
+    evaluatorName: 'Er. Alok Chandrakar',
+    evaluatorRole: 'Gharkasathi Trainer',
+    assessmentDate: '2026-07-20T10:00:00Z',
+    scores: {
+      toolHandling: 5,
+      diagnosis: 5,
+      installation: 5,
+      safety: 5,
+      finishing: 4,
+      cleanliness: 5
+    },
+    totalScore: 29,
+    passed: true,
+    comments: 'Master level understanding of earth leakage isolation and inverter wiring.'
+  }
+];
+
 const providers: Provider[] = [
   {
     id: 'PRV-101',
-    name: 'Rajesh Kumar',
-    phone: '+91 98110 32410',
-    skills: ['Plumbing', 'Drain Cleaning', 'Pipe Fitting'],
+    name: 'Rajesh Kumar Sonkar',
+    phone: '+91 98261 32410',
+    whatsapp: '+91 98261 32410',
+    skills: ['Plumbing', 'Drain Cleaning', 'Sanitary Fitting', 'Water Tank Cleaning'],
     status: 'on_job',
     rating: 4.88,
     completedJobs: 142,
-    zone: 'Noida / Indirapuram',
+    city: 'Raipur',
+    zone: 'Shankar Nagar & Pandri Hub',
     walletBalance: 3450,
+    verificationStatus: 'verified',
+    journeyStatus: 'certified',
+    performanceTier: 'pro',
+    isCsgspCertified: true,
+    certifiedCategories: ['Plumbing'],
+    certifications: [partnerCertificates[0]],
+    gharkasathiScore: 94,
+    experienceYears: 7,
+    aadharNumber: 'XXXX-XXXX-8921',
+    upiId: 'rajeshsonkar@okaxis',
+    vehicleType: 'Hero Splendor Bike',
+    toolsOwned: true,
+    appliedAt: '2026-08-10T10:00:00Z',
+    verifiedAt: '2026-08-11T14:30:00Z',
+    verifiedBy: 'Admin (Raipur Currency Tower)',
+    onboardingSource: 'walk_in'
   },
   {
     id: 'PRV-102',
-    name: 'Sunil Rathore',
-    phone: '+91 98221 44519',
-    skills: ['Electrical Wiring', 'Inverter Setup', 'MCB Tripping'],
+    name: 'Sunil Dewangan',
+    phone: '+91 98271 44519',
+    whatsapp: '+91 98271 44519',
+    skills: ['Electrical Wiring', 'Inverter Setup', 'MCB Tripping', 'Appliance Repair'],
     status: 'on_job',
     rating: 4.92,
     completedJobs: 215,
-    zone: 'South Delhi / Saket',
+    city: 'Bhilai',
+    zone: 'Sector 6 & Nehru Nagar Hub',
     walletBalance: 5120,
+    verificationStatus: 'verified',
+    journeyStatus: 'certified',
+    performanceTier: 'elite',
+    isCsgspCertified: true,
+    certifiedCategories: ['Electrical'],
+    certifications: [partnerCertificates[1]],
+    gharkasathiScore: 98,
+    experienceYears: 9,
+    aadharNumber: 'XXXX-XXXX-4102',
+    upiId: 'sunildewangan@paytm',
+    vehicleType: 'Honda Activa',
+    toolsOwned: true,
+    appliedAt: '2026-07-15T09:00:00Z',
+    verifiedAt: '2026-07-16T11:00:00Z',
+    verifiedBy: 'Admin (Currency Tower)',
+    onboardingSource: 'manual_admin'
   },
   {
     id: 'PRV-103',
-    name: 'Manoj Yadav',
-    phone: '+91 98700 81290',
-    skills: ['AC Repair', 'Gas Refill', 'Jet Cleaning'],
+    name: 'Manoj Sahu',
+    phone: '+91 97550 81290',
+    whatsapp: '+91 97550 81290',
+    skills: ['AC Repair', 'Gas Refill', 'Jet Cleaning', 'Refrigerator'],
     status: 'online',
     rating: 4.79,
     completedJobs: 98,
-    zone: 'Gurugram / DLF Phase 3',
+    city: 'Raipur',
+    zone: 'VIP Road & Telibandha Hub',
     walletBalance: 2100,
+    verificationStatus: 'verified',
+    journeyStatus: 'training_assigned',
+    performanceTier: 'standard',
+    isCsgspCertified: false,
+    certifiedCategories: [],
+    certifications: [],
+    gharkasathiScore: 82,
+    experienceYears: 5,
+    aadharNumber: 'XXXX-XXXX-6531',
+    upiId: 'manojsahu@ibl',
+    vehicleType: 'TVS Jupiter',
+    toolsOwned: true,
+    appliedAt: '2026-08-20T12:00:00Z',
+    verifiedAt: '2026-08-21T15:00:00Z',
+    verifiedBy: 'Admin',
+    onboardingSource: 'self_registered'
   },
   {
     id: 'PRV-104',
-    name: 'Deepak Verma',
-    phone: '+91 97182 66311',
-    skills: ['Carpentry', 'Furniture Assembly', 'Door Locks'],
+    name: 'Deepak Vishwakarma',
+    phone: '+91 99812 66311',
+    whatsapp: '+91 99812 66311',
+    skills: ['Carpentry', 'Modular Kitchen Fitting', 'Door Locks', 'Wardrobe Polish'],
     status: 'online',
     rating: 4.85,
     completedJobs: 167,
-    zone: 'East Delhi / Laxmi Nagar',
+    city: 'Durg',
+    zone: 'Mohan Nagar & Malviya Nagar',
     walletBalance: 4200,
+    verificationStatus: 'verified',
+    journeyStatus: 'professionally_verified',
+    performanceTier: 'standard',
+    isCsgspCertified: false,
+    certifiedCategories: [],
+    certifications: [],
+    gharkasathiScore: 78,
+    experienceYears: 11,
+    aadharNumber: 'XXXX-XXXX-1994',
+    upiId: 'deepakv@ybl',
+    vehicleType: 'Bajaj Pulsar',
+    toolsOwned: true,
+    appliedAt: '2026-07-02T10:00:00Z',
+    verifiedAt: '2026-07-03T16:00:00Z',
+    verifiedBy: 'Admin',
+    onboardingSource: 'manual_admin'
   },
+  {
+    id: 'PRV-105',
+    name: 'Ramesh Verma',
+    phone: '+91 79871 29384',
+    whatsapp: '+91 79871 29384',
+    skills: ['Civil Masonry', 'Tile Laying', 'Waterproofing', 'Turnkey Construction'],
+    status: 'offline',
+    rating: 5.0,
+    completedJobs: 0,
+    city: 'Raipur',
+    zone: 'Tatibandh & AIIMS Hub',
+    walletBalance: 0,
+    verificationStatus: 'pending_verification',
+    journeyStatus: 'registered',
+    performanceTier: 'standard',
+    isCsgspCertified: false,
+    certifiedCategories: [],
+    certifications: [],
+    gharkasathiScore: 60,
+    experienceYears: 8,
+    aadharNumber: 'XXXX-XXXX-5401',
+    upiId: 'rameshverma@upi',
+    vehicleType: 'Hero Passion',
+    toolsOwned: true,
+    appliedAt: new Date(Date.now() - 7200000).toISOString(),
+    onboardingSource: 'self_registered'
+  },
+  {
+    id: 'PRV-106',
+    name: 'Amit Tandi',
+    phone: '+91 88179 40291',
+    whatsapp: '+91 88179 40291',
+    skills: ['Deep Cleaning', 'Sofa Shampooing', 'Pest Control'],
+    status: 'offline',
+    rating: 5.0,
+    completedJobs: 0,
+    city: 'Bilaspur',
+    zone: 'Vyapar Vihar & Link Road',
+    walletBalance: 0,
+    verificationStatus: 'pending_verification',
+    journeyStatus: 'kyc_verified',
+    performanceTier: 'standard',
+    isCsgspCertified: false,
+    certifiedCategories: [],
+    certifications: [],
+    gharkasathiScore: 70,
+    experienceYears: 4,
+    aadharNumber: 'XXXX-XXXX-7723',
+    upiId: 'amittandi@okaxis',
+    vehicleType: 'Suzuki Access',
+    toolsOwned: true,
+    appliedAt: new Date(Date.now() - 3600000).toISOString(),
+    onboardingSource: 'self_registered'
+  }
 ];
 
 // Global Platform Tax & Financial Configuration (Dynamic & Live)
@@ -150,7 +447,8 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.text({ type: ['image/svg+xml', 'text/plain', 'text/xml'], limit: '10mb' }));
 
   // CORS middleware for APK and web clients
   app.use((req, res, next) => {
@@ -404,7 +702,9 @@ async function startServer() {
     };
 
     // Auto-match nearest available provider if one exists
-    const availableProvider = providers.find((p) => p.status === 'online');
+    // Skill & Certification Priority: Certified Skilled Gharkasathi Service Partners (CSGSP) receive first priority
+    const matchingCertified = providers.find((p) => p.status === 'online' && p.isCsgspCertified);
+    const availableProvider = matchingCertified || providers.find((p) => p.status === 'online');
     if (availableProvider) {
       newBooking.status = 'partner_assigned';
       newBooking.partnerId = availableProvider.id;
@@ -508,9 +808,17 @@ async function startServer() {
 
   // 9. Providers: List and Status Toggle
   app.get('/api/providers', (req, res) => {
+    const { status, verification } = req.query;
+    let list = [...providers];
+    if (status) {
+      list = list.filter(p => p.status === status);
+    }
+    if (verification) {
+      list = list.filter(p => p.verificationStatus === verification);
+    }
     res.json({
-      total: providers.length,
-      providers,
+      total: list.length,
+      providers: list,
     });
   });
 
@@ -530,6 +838,896 @@ async function startServer() {
     res.json({
       success: true,
       provider,
+    });
+  });
+
+  // 9b. Public Self-Registration for Service Partners
+  app.post('/api/partners/register', (req, res) => {
+    const {
+      name,
+      phone,
+      whatsapp,
+      skills,
+      city,
+      zone,
+      experienceYears,
+      aadharNumber,
+      upiId,
+      vehicleType,
+      toolsOwned
+    } = req.body;
+
+    if (!name || !phone || !skills || !city) {
+      return res.status(400).json({ 
+        error: 'Missing mandatory fields: name, phone, skills, and city are required.' 
+      });
+    }
+
+    const cleanPhone = phone.trim();
+    const existing = providers.find(p => p.phone === cleanPhone);
+    if (existing) {
+      return res.status(409).json({
+        error: 'A service partner with this phone number is already registered.',
+        existingStatus: existing.verificationStatus
+      });
+    }
+
+    const newPartnerId = `PRV-${100 + providers.length + 1}`;
+    const skillsList = Array.isArray(skills) 
+      ? skills 
+      : typeof skills === 'string' 
+        ? skills.split(',').map(s => s.trim()).filter(Boolean)
+        : ['General Maintenance'];
+
+    const newProvider: Provider = {
+      id: newPartnerId,
+      name: name.trim(),
+      phone: cleanPhone,
+      whatsapp: whatsapp?.trim() || cleanPhone,
+      skills: skillsList,
+      status: 'offline',
+      rating: 5.0,
+      completedJobs: 0,
+      city: city || 'Raipur',
+      zone: zone || `${city} Central Hub`,
+      walletBalance: 0,
+      verificationStatus: 'pending_verification',
+      journeyStatus: 'registered',
+      performanceTier: 'standard',
+      isCsgspCertified: false,
+      certifiedCategories: [],
+      certifications: [],
+      gharkasathiScore: 50,
+      experienceYears: Number(experienceYears) || 1,
+      aadharNumber: aadharNumber ? aadharNumber.trim() : undefined,
+      upiId: upiId ? upiId.trim() : undefined,
+      vehicleType: vehicleType || 'Bike',
+      toolsOwned: toolsOwned !== false,
+      appliedAt: new Date().toISOString(),
+      onboardingSource: 'self_registered'
+    };
+
+    providers.unshift(newProvider);
+
+    res.status(201).json({
+      success: true,
+      message: 'Partner registration application received successfully. Verification pending by Gharkasathi Operations.',
+      partner: newProvider
+    });
+  });
+
+  // 9c. Admin: Add Service Partner Manually (Walk-in / Office Enrollment)
+  app.post('/api/partners/manual-add', (req, res) => {
+    const {
+      name,
+      phone,
+      whatsapp,
+      skills,
+      city,
+      zone,
+      experienceYears,
+      aadharNumber,
+      upiId,
+      vehicleType,
+      initialWallet,
+      verificationStatus,
+      status
+    } = req.body;
+
+    if (!name || !phone) {
+      return res.status(400).json({ error: 'Name and Phone number are required.' });
+    }
+
+    const cleanPhone = phone.trim();
+    const newPartnerId = `PRV-${100 + providers.length + 1}`;
+    const skillsList = Array.isArray(skills) 
+      ? skills 
+      : typeof skills === 'string' 
+        ? skills.split(',').map(s => s.trim()).filter(Boolean)
+        : ['General Maintenance'];
+
+    const newProvider: Provider = {
+      id: newPartnerId,
+      name: name.trim(),
+      phone: cleanPhone,
+      whatsapp: whatsapp?.trim() || cleanPhone,
+      skills: skillsList,
+      status: status || 'online',
+      rating: 5.0,
+      completedJobs: 0,
+      city: city || 'Raipur',
+      zone: zone || 'Currency Tower, VIP Road Hub',
+      walletBalance: Number(initialWallet) || 500,
+      verificationStatus: verificationStatus || 'verified',
+      journeyStatus: (verificationStatus === 'verified' ? 'professionally_verified' : 'registered'),
+      performanceTier: 'standard',
+      isCsgspCertified: false,
+      certifiedCategories: [],
+      certifications: [],
+      gharkasathiScore: 70,
+      experienceYears: Number(experienceYears) || 3,
+      aadharNumber: aadharNumber?.trim() || 'VERIFIED_OFFICE_KYC',
+      upiId: upiId?.trim() || `${cleanPhone}@upi`,
+      vehicleType: vehicleType || 'Two Wheeler',
+      toolsOwned: true,
+      appliedAt: new Date().toISOString(),
+      verifiedAt: new Date().toISOString(),
+      verifiedBy: 'Gharkasathi Admin (Direct Entry)',
+      onboardingSource: 'manual_admin'
+    };
+
+    providers.unshift(newProvider);
+
+    res.status(201).json({
+      success: true,
+      message: 'Service partner created and enrolled into active dispatch network.',
+      partner: newProvider
+    });
+  });
+
+  // 9d. Admin: Verify / KYC Approve / Reject / Suspend Partner
+  app.patch('/api/partners/:id/verify', (req, res) => {
+    const { id } = req.params;
+    const { verificationStatus, notes } = req.body;
+
+    const provider = providers.find(p => p.id === id);
+    if (!provider) {
+      return res.status(404).json({ error: 'Partner not found' });
+    }
+
+    if (!['verified', 'pending_verification', 'rejected', 'suspended'].includes(verificationStatus)) {
+      return res.status(400).json({ error: 'Invalid verification status' });
+    }
+
+    provider.verificationStatus = verificationStatus;
+    if (verificationStatus === 'verified') {
+      provider.verifiedAt = new Date().toISOString();
+      provider.verifiedBy = 'Gharkasathi Admin (Raipur HQ)';
+      if (provider.journeyStatus === 'registered') {
+        provider.journeyStatus = 'kyc_verified';
+      }
+      // If was offline and now verified, grant starter bonus if wallet is 0
+      if (provider.walletBalance === 0) {
+        provider.walletBalance = 250; // Starter dispatch deposit
+      }
+    } else if (verificationStatus === 'suspended' || verificationStatus === 'rejected') {
+      provider.status = 'offline';
+      if (verificationStatus === 'suspended') {
+        provider.journeyStatus = 'suspended';
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Partner status updated to ${verificationStatus}`,
+      provider
+    });
+  });
+
+  // 9e. Admin: Partner Wallet Management (Credit / Debit)
+  app.patch('/api/partners/:id/wallet', (req, res) => {
+    const { id } = req.params;
+    const { amount, action, reason } = req.body;
+
+    const provider = providers.find(p => p.id === id);
+    if (!provider) {
+      return res.status(404).json({ error: 'Partner not found' });
+    }
+
+    const numAmount = Number(amount);
+    if (isNaN(numAmount) || numAmount <= 0) {
+      return res.status(400).json({ error: 'Valid positive amount is required' });
+    }
+
+    if (action === 'credit') {
+      provider.walletBalance += numAmount;
+    } else if (action === 'debit') {
+      provider.walletBalance = Math.max(0, provider.walletBalance - numAmount);
+    } else {
+      return res.status(400).json({ error: 'Action must be credit or debit' });
+    }
+
+    res.json({
+      success: true,
+      message: `Partner wallet ${action}ed with ₹${numAmount}. New balance: ₹${provider.walletBalance}`,
+      walletBalance: provider.walletBalance,
+      provider
+    });
+  });
+
+  // 9f. Partner App Companion Endpoints (Used by Flutter App)
+  app.get('/api/partner/dashboard/:id', (req, res) => {
+    const { id } = req.params;
+    const partner = providers.find(p => p.id === id);
+    if (!partner) {
+      return res.status(404).json({ error: 'Partner not found' });
+    }
+
+    // Find assigned active job
+    const activeJob = bookings.find(b => 
+      b.partnerId === id && ['partner_assigned', 'in_progress'].includes(b.status)
+    );
+
+    // Find broadcast jobs available for claim
+    const availableJobs = bookings.filter(b => b.status === 'pending_match');
+
+    res.json({
+      partner,
+      activeJob: activeJob || null,
+      availableJobsCount: availableJobs.length,
+      availableJobs: availableJobs.slice(0, 5),
+      todayEarnings: partner.completedJobs > 0 ? (partner.walletBalance * 0.85).toFixed(0) : 0
+    });
+  });
+
+  // Partner Accept Job
+  app.post('/api/partner/jobs/:jobId/accept', (req, res) => {
+    const { jobId } = req.params;
+    const { partnerId } = req.body;
+
+    const booking = bookings.find(b => b.id === jobId);
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    const partner = providers.find(p => p.id === partnerId);
+    if (!partner) {
+      return res.status(404).json({ error: 'Partner not found' });
+    }
+
+    if (booking.status !== 'pending_match') {
+      return res.status(400).json({ error: 'Booking is no longer available' });
+    }
+
+    booking.status = 'partner_assigned';
+    booking.partnerId = partner.id;
+    booking.partnerName = partner.name;
+    partner.status = 'on_job';
+
+    res.json({
+      success: true,
+      message: `Job accepted successfully by ${partner.name}`,
+      booking
+    });
+  });
+
+  // Partner Start Job (With Start OTP)
+  app.post('/api/partner/jobs/:jobId/start', (req, res) => {
+    const { jobId } = req.params;
+    const { otp } = req.body;
+
+    const booking = bookings.find(b => b.id === jobId);
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    // Default simulation OTP: 1234 or any 4-digit code
+    booking.status = 'in_progress';
+
+    res.json({
+      success: true,
+      message: 'Job status moved to in_progress',
+      booking
+    });
+  });
+
+  // Partner Complete Job
+  app.post('/api/partner/jobs/:jobId/complete', (req, res) => {
+    const { jobId } = req.params;
+    const { paymentMethod } = req.body;
+
+    const booking = bookings.find(b => b.id === jobId);
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    booking.status = 'completed';
+    booking.isPaid = true;
+
+    const partner = providers.find(p => p.id === booking.partnerId);
+    if (partner) {
+      partner.status = 'online';
+      partner.completedJobs += 1;
+      const earnings = Math.round(booking.amount * 0.85);
+      partner.walletBalance += earnings;
+    }
+
+    res.json({
+      success: true,
+      message: 'Job completed and earnings credited to partner wallet',
+      booking
+    });
+  });
+
+  // =========================================================================
+  // 9g. GHARKASATHI ACADEMY & CSGSP CERTIFICATION SYSTEM APIS
+  // =========================================================================
+
+  // 1. List Courses (Bilingual Support)
+  app.get('/api/academy/courses', (req, res) => {
+    const { category } = req.query;
+    let courses = [...ACADEMY_COURSES];
+    if (category) {
+      courses = courses.filter(c => c.category.toLowerCase() === String(category).toLowerCase());
+    }
+    res.json({
+      total: courses.length,
+      courses
+    });
+  });
+
+  // 2. Get Single Course with Modules & Questions
+  app.get('/api/academy/courses/:id', (req, res) => {
+    const { id } = req.params;
+    const course = ACADEMY_COURSES.find(c => c.id === id);
+    if (!course) {
+      return res.status(404).json({ error: 'Academy course not found' });
+    }
+    res.json(course);
+  });
+
+  // 3. Partner Academy Progress & Certifications
+  app.get('/api/academy/partner/:partnerId/progress', (req, res) => {
+    const { partnerId } = req.params;
+    const partner = providers.find(p => p.id === partnerId);
+    if (!partner) {
+      return res.status(404).json({ error: 'Partner not found' });
+    }
+
+    const progressList = partnerTrainingProgress.filter(p => p.partnerId === partnerId);
+    const certs = partnerCertificates.filter(c => c.partnerId === partnerId);
+
+    res.json({
+      partnerId,
+      partnerName: partner.name,
+      journeyStatus: partner.journeyStatus,
+      isCsgspCertified: partner.isCsgspCertified,
+      certifiedCategories: partner.certifiedCategories,
+      performanceTier: partner.performanceTier || 'standard',
+      gharkasathiScore: partner.gharkasathiScore || 70,
+      progress: progressList,
+      certificates: certs
+    });
+  });
+
+  // 4. Enroll in Course
+  app.post('/api/academy/partner/:partnerId/enroll', (req, res) => {
+    const { partnerId } = req.params;
+    const { courseId } = req.body;
+
+    const partner = providers.find(p => p.id === partnerId);
+    if (!partner) {
+      return res.status(404).json({ error: 'Partner not found' });
+    }
+
+    const course = ACADEMY_COURSES.find(c => c.id === courseId);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    let progress = partnerTrainingProgress.find(
+      p => p.partnerId === partnerId && p.courseId === courseId
+    );
+
+    if (!progress) {
+      progress = {
+        partnerId,
+        courseId,
+        status: 'enrolled',
+        completedLessonIds: [],
+        quizAttempts: 0,
+        bestQuizScore: 0
+      };
+      partnerTrainingProgress.push(progress);
+    }
+
+    if (['registered', 'kyc_verified', 'professionally_verified'].includes(partner.journeyStatus)) {
+      partner.journeyStatus = 'training_assigned';
+    }
+
+    res.json({
+      success: true,
+      message: `Enrolled successfully in ${course.titleEn}`,
+      progress
+    });
+  });
+
+  // 5. Complete a Lesson
+  app.post('/api/academy/partner/:partnerId/lesson-complete', (req, res) => {
+    const { partnerId } = req.params;
+    const { courseId, lessonId } = req.body;
+
+    const course = ACADEMY_COURSES.find(c => c.id === courseId);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    let progress = partnerTrainingProgress.find(
+      p => p.partnerId === partnerId && p.courseId === courseId
+    );
+
+    if (!progress) {
+      progress = {
+        partnerId,
+        courseId,
+        status: 'in_progress',
+        completedLessonIds: [lessonId],
+        quizAttempts: 0,
+        bestQuizScore: 0
+      };
+      partnerTrainingProgress.push(progress);
+    } else {
+      if (!progress.completedLessonIds.includes(lessonId)) {
+        progress.completedLessonIds.push(lessonId);
+      }
+      if (progress.status === 'enrolled') {
+        progress.status = 'in_progress';
+      }
+    }
+
+    // Check if all lessons are completed
+    const allLessonIds = course.modules.flatMap(m => m.lessons.map(l => l.id));
+    const allDone = allLessonIds.every(id => progress!.completedLessonIds.includes(id));
+    if (allDone && progress.status === 'in_progress') {
+      progress.status = 'completed';
+    }
+
+    res.json({
+      success: true,
+      progress,
+      allLessonsCompleted: allDone
+    });
+  });
+
+  // 6. Submit Quiz Assessment & Auto-Certify (if passing criteria met)
+  app.post('/api/academy/partner/:partnerId/quiz/submit', (req, res) => {
+    const { partnerId } = req.params;
+    const { courseId, answers } = req.body; // answers: { [questionId]: selectedIndex }
+
+    const partner = providers.find(p => p.id === partnerId);
+    if (!partner) {
+      return res.status(404).json({ error: 'Partner not found' });
+    }
+
+    const course = ACADEMY_COURSES.find(c => c.id === courseId);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    if (!answers || typeof answers !== 'object') {
+      return res.status(400).json({ error: 'Quiz answers are required' });
+    }
+
+    // Evaluate answers
+    let correctCount = 0;
+    const totalQuestions = course.quiz.length;
+    const questionResults = course.quiz.map(q => {
+      const selected = answers[q.id];
+      const isCorrect = selected === q.correctIndex;
+      if (isCorrect) correctCount++;
+      return {
+        questionId: q.id,
+        selected,
+        correctIndex: q.correctIndex,
+        isCorrect,
+        explanationEn: q.explanationEn,
+        explanationHi: q.explanationHi
+      };
+    });
+
+    const scorePercentage = Math.round((correctCount / totalQuestions) * 100);
+    const passed = scorePercentage >= course.passingScore;
+
+    let progress = partnerTrainingProgress.find(
+      p => p.partnerId === partnerId && p.courseId === courseId
+    );
+
+    if (!progress) {
+      progress = {
+        partnerId,
+        courseId,
+        status: passed ? 'assessment_passed' : 'failed',
+        completedLessonIds: course.modules.flatMap(m => m.lessons.map(l => l.id)),
+        quizAttempts: 1,
+        bestQuizScore: scorePercentage,
+        lastAttemptAt: new Date().toISOString()
+      };
+      partnerTrainingProgress.push(progress);
+    } else {
+      progress.quizAttempts += 1;
+      progress.bestQuizScore = Math.max(progress.bestQuizScore, scorePercentage);
+      progress.lastAttemptAt = new Date().toISOString();
+      if (passed) {
+        progress.status = 'assessment_passed';
+        progress.assessmentDate = new Date().toISOString();
+      } else {
+        progress.status = 'failed';
+      }
+    }
+
+    let issuedCertificate: PartnerCertificationItem | null = null;
+
+    if (passed) {
+      // If practical is NOT required or already passed
+      if (!course.practicalRequired) {
+        // Issue Certificate
+        const categoryCode = course.category.substring(0, 2).toUpperCase();
+        const year = new Date().getFullYear();
+        const randHash = crypto.randomBytes(3).toString('hex').toUpperCase();
+        const certNumber = `${100 + partnerCertificates.length + 1}`;
+        const newCertId = `GK-CERT-${categoryCode}-${year}-${certNumber}`;
+
+        const validUntilDate = new Date();
+        validUntilDate.setFullYear(validUntilDate.getFullYear() + (course.validityMonths > 0 ? course.validityMonths / 12 : 2));
+
+        issuedCertificate = {
+          id: `CERT-${Date.now()}`,
+          partnerId: partner.id,
+          partnerName: partner.name,
+          category: course.category,
+          certificateId: newCertId,
+          issueDate: new Date().toISOString(),
+          validUntil: validUntilDate.toISOString(),
+          status: 'ACTIVE',
+          quizScore: scorePercentage,
+          authorizedBy: 'Director of Skill Training & Quality, Gharkasathi Innoventure Private Limited',
+          qrPayload: `https://gharkasathi.com/verify-credential/${newCertId}`
+        };
+
+        partnerCertificates.unshift(issuedCertificate);
+
+        // Update Partner CSGSP Status
+        partner.isCsgspCertified = true;
+        if (!partner.certifiedCategories.includes(course.category)) {
+          partner.certifiedCategories.push(course.category);
+        }
+        partner.journeyStatus = 'certified';
+        partner.gharkasathiScore = Math.min(100, (partner.gharkasathiScore || 70) + 10);
+        if (!partner.certifications) partner.certifications = [];
+        partner.certifications.unshift(issuedCertificate);
+      } else {
+        // Needs practical assessment
+        partner.journeyStatus = 'assessment_passed';
+      }
+    }
+
+    res.json({
+      success: true,
+      passed,
+      score: scorePercentage,
+      passingScore: course.passingScore,
+      correctCount,
+      totalQuestions,
+      questionResults,
+      practicalRequired: course.practicalRequired,
+      practicalPending: passed && course.practicalRequired,
+      certificate: issuedCertificate,
+      message: passed
+        ? (course.practicalRequired
+            ? 'Theory quiz passed! Pending hands-on practical skill evaluation by Gharkasathi Skill Evaluator.'
+            : 'Congratulations! You have been certified as a Certified Skilled Gharkasathi Service Partner (CSGSP).')
+        : `Assessment score ${scorePercentage}% is below passing mark of ${course.passingScore}%. Please review modules and retry after study.`
+    });
+  });
+
+  // 7. Evaluator: Conduct & Record Practical Skill Assessment
+  app.post('/api/academy/practical-assessment', (req, res) => {
+    const {
+      partnerId,
+      category,
+      scores,
+      evaluatorName,
+      evaluatorRole = 'Gharkasathi Skill Evaluator',
+      comments
+    } = req.body;
+
+    const partner = providers.find(p => p.id === partnerId);
+    if (!partner) {
+      return res.status(404).json({ error: 'Partner not found' });
+    }
+
+    if (!scores || typeof scores !== 'object') {
+      return res.status(400).json({ error: 'Evaluation rubric scores are required' });
+    }
+
+    const {
+      toolHandling = 4,
+      diagnosis = 4,
+      installation = 4,
+      safety = 5,
+      finishing = 4,
+      cleanliness = 5
+    } = scores;
+
+    const totalScore = Number(toolHandling) + Number(diagnosis) + Number(installation) + Number(safety) + Number(finishing) + Number(cleanliness);
+    const passed = totalScore >= 24; // 80% of 30 marks
+
+    const assessmentRecord: PracticalAssessmentRecord = {
+      id: `PRAC-${Date.now()}`,
+      partnerId: partner.id,
+      partnerName: partner.name,
+      category: category || 'Plumbing',
+      evaluatorName: evaluatorName || 'Er. Sandeep Baghel',
+      evaluatorRole: evaluatorRole as any,
+      assessmentDate: new Date().toISOString(),
+      scores: {
+        toolHandling: Number(toolHandling),
+        diagnosis: Number(diagnosis),
+        installation: Number(installation),
+        safety: Number(safety),
+        finishing: Number(finishing),
+        cleanliness: Number(cleanliness)
+      },
+      totalScore,
+      passed,
+      comments: comments || (passed ? 'Technician demonstrates high skill, safety obedience, and clean site management.' : 'Needs improvement in tool safety and proper diagnostic isolation.')
+    };
+
+    practicalAssessments.unshift(assessmentRecord);
+
+    // Update corresponding progress
+    const matchingProgress = partnerTrainingProgress.find(
+      p => p.partnerId === partnerId && p.courseId.toLowerCase().includes((category || '').toLowerCase().substring(0, 3))
+    );
+    if (matchingProgress) {
+      matchingProgress.practicalPassed = passed;
+      matchingProgress.practicalScore = totalScore;
+      matchingProgress.practicalComments = assessmentRecord.comments;
+      matchingProgress.evaluatorName = assessmentRecord.evaluatorName;
+    }
+
+    let issuedCertificate: PartnerCertificationItem | null = null;
+
+    if (passed) {
+      const categoryCode = (category || 'SK').substring(0, 2).toUpperCase();
+      const year = new Date().getFullYear();
+      const certNumber = `${100 + partnerCertificates.length + 1}`;
+      const newCertId = `GK-CERT-${categoryCode}-${year}-${certNumber}`;
+
+      const validUntilDate = new Date();
+      validUntilDate.setFullYear(validUntilDate.getFullYear() + 2);
+
+      issuedCertificate = {
+        id: `CERT-${Date.now()}`,
+        partnerId: partner.id,
+        partnerName: partner.name,
+        category: category || 'Plumbing',
+        certificateId: newCertId,
+        issueDate: new Date().toISOString(),
+        validUntil: validUntilDate.toISOString(),
+        status: 'ACTIVE',
+        quizScore: matchingProgress?.bestQuizScore || 90,
+        practicalScore: totalScore,
+        evaluatorName: assessmentRecord.evaluatorName,
+        authorizedBy: 'Director of Skill Training & Quality, Gharkasathi Innoventure Private Limited',
+        qrPayload: `https://gharkasathi.com/verify-credential/${newCertId}`
+      };
+
+      partnerCertificates.unshift(issuedCertificate);
+
+      partner.isCsgspCertified = true;
+      if (!partner.certifiedCategories.includes(category)) {
+        partner.certifiedCategories.push(category);
+      }
+      partner.journeyStatus = 'certified';
+      partner.gharkasathiScore = Math.min(100, (partner.gharkasathiScore || 75) + 12);
+      if (!partner.certifications) partner.certifications = [];
+      partner.certifications.unshift(issuedCertificate);
+    }
+
+    res.status(201).json({
+      success: true,
+      assessment: assessmentRecord,
+      passed,
+      certificate: issuedCertificate,
+      message: passed
+        ? `Practical test passed (${totalScore}/30)! Official CSGSP Certificate generated.`
+        : `Candidate scored ${totalScore}/30. Passing threshold is 24/30. Reassessment required.`
+    });
+  });
+
+  // 8. List Certificates
+  app.get('/api/certificates', (req, res) => {
+    const { status, category, partnerId } = req.query;
+    let list = [...partnerCertificates];
+    if (status) {
+      list = list.filter(c => c.status === status);
+    }
+    if (category) {
+      list = list.filter(c => c.category.toLowerCase() === String(category).toLowerCase());
+    }
+    if (partnerId) {
+      list = list.filter(c => c.partnerId === partnerId);
+    }
+    res.json({
+      total: list.length,
+      certificates: list
+    });
+  });
+
+  // 9. Single Certificate Lookup
+  app.get('/api/certificates/:certificateId', (req, res) => {
+    const { certificateId } = req.params;
+    const cert = partnerCertificates.find(c => c.certificateId === certificateId || c.id === certificateId);
+    if (!cert) {
+      return res.status(404).json({ error: 'Certificate not found' });
+    }
+    res.json(cert);
+  });
+
+  // 10. Public QR Verification Endpoint (Privacy-safe: no PII/Aadhar/Phone leaked)
+  app.get('/api/certificates/verify/:certificateId', (req, res) => {
+    const { certificateId } = req.params;
+    const cert = partnerCertificates.find(c => c.certificateId === certificateId);
+    if (!cert) {
+      return res.status(404).json({
+        valid: false,
+        error: 'Certificate not found in Gharkasathi National Skill Registry',
+        searchedId: certificateId
+      });
+    }
+
+    const partner = providers.find(p => p.id === cert.partnerId);
+
+    res.json({
+      valid: cert.status === 'ACTIVE',
+      certificateId: cert.certificateId,
+      partnerName: cert.partnerName,
+      tradeCategory: cert.category,
+      credentialTitle: 'Certified Skilled Gharkasathi Service Partner (CSGSP)',
+      status: cert.status,
+      issueDate: cert.issueDate,
+      validUntil: cert.validUntil,
+      evaluatorName: cert.evaluatorName || 'Gharkasathi Central Technical Board',
+      authorizedBy: cert.authorizedBy,
+      totalCompletedJobs: partner ? partner.completedJobs : 0,
+      rating: partner ? partner.rating : 4.9,
+      company: 'Gharkasathi Innoventure Private Limited',
+      cin: 'U45200CT2026PTC018290',
+      registryUrl: `https://gharkasathi.com/verify-credential/${cert.certificateId}`,
+      verificationTimestamp: new Date().toISOString()
+    });
+  });
+
+  // 11. Admin: Manage Certificate Status (Suspend / Revoke / Renew)
+  app.post('/api/admin/certifications/:id/status', (req, res) => {
+    const { id } = req.params;
+    const { status, extensionMonths } = req.body;
+
+    const cert = partnerCertificates.find(c => c.id === id || c.certificateId === id);
+    if (!cert) {
+      return res.status(404).json({ error: 'Certificate not found' });
+    }
+
+    if (['ACTIVE', 'EXPIRED', 'SUSPENDED', 'REVOKED'].includes(status)) {
+      cert.status = status;
+    }
+
+    if (extensionMonths && Number(extensionMonths) > 0) {
+      const currentExpiry = new Date(cert.validUntil);
+      currentExpiry.setMonth(currentExpiry.getMonth() + Number(extensionMonths));
+      cert.validUntil = currentExpiry.toISOString();
+      cert.status = 'ACTIVE';
+    }
+
+    // Refresh partner certified status if revoked or suspended
+    const partner = providers.find(p => p.id === cert.partnerId);
+    if (partner) {
+      const activeCerts = partnerCertificates.filter(c => c.partnerId === partner.id && c.status === 'ACTIVE');
+      partner.isCsgspCertified = activeCerts.length > 0;
+      partner.certifiedCategories = activeCerts.map(c => c.category);
+      if (status === 'SUSPENDED' || status === 'REVOKED') {
+        if (activeCerts.length === 0) {
+          partner.journeyStatus = status === 'SUSPENDED' ? 'suspended' : 'professionally_verified';
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Certificate ${cert.certificateId} status updated to ${cert.status}`,
+      certificate: cert
+    });
+  });
+
+  // 12. Admin: Manually advance or change Partner Journey Status
+  app.patch('/api/admin/partners/:id/journey-status', (req, res) => {
+    const { id } = req.params;
+    const { journeyStatus, performanceTier } = req.body;
+
+    const partner = providers.find(p => p.id === id);
+    if (!partner) {
+      return res.status(404).json({ error: 'Partner not found' });
+    }
+
+    if (journeyStatus) {
+      partner.journeyStatus = journeyStatus;
+    }
+    if (performanceTier) {
+      partner.performanceTier = performanceTier;
+    }
+
+    res.json({
+      success: true,
+      message: `Partner journey status set to ${partner.journeyStatus}`,
+      partner
+    });
+  });
+
+  // 13. Admin: Academy Performance Analytics
+  app.get('/api/admin/academy/analytics', (req, res) => {
+    const totalEnrolled = partnerTrainingProgress.length;
+    const trainingStarted = partnerTrainingProgress.filter(p => p.status === 'in_progress').length;
+    const trainingCompleted = partnerTrainingProgress.filter(p => ['completed', 'assessment_passed'].includes(p.status)).length;
+    const assessmentAttempts = partnerTrainingProgress.reduce((sum, p) => sum + (p.quizAttempts || 0), 0);
+    const passedCount = partnerTrainingProgress.filter(p => p.status === 'assessment_passed').length;
+    const failedCount = partnerTrainingProgress.filter(p => p.status === 'failed').length;
+    const passRate = assessmentAttempts > 0 ? Math.round((passedCount / (passedCount + failedCount || 1)) * 100) : 100;
+    const certifiedPartnersCount = providers.filter(p => p.isCsgspCertified).length;
+
+    const certificationsByCategory: Record<string, number> = {};
+    partnerCertificates.forEach(c => {
+      certificationsByCategory[c.category] = (certificationsByCategory[c.category] || 0) + 1;
+    });
+
+    const now = Date.now();
+    const thirtyDays = 30 * 24 * 3600 * 1000;
+    const expiringSoonCount = partnerCertificates.filter(c => {
+      const expiry = new Date(c.validUntil).getTime();
+      return expiry > now && (expiry - now) < thirtyDays;
+    }).length;
+
+    res.json({
+      totalEnrolled,
+      trainingStarted,
+      trainingCompleted,
+      assessmentAttempts,
+      passedCount,
+      failedCount,
+      passRate,
+      certifiedPartnersCount,
+      totalPartners: providers.length,
+      certificationsByCategory,
+      expiringSoonCount,
+      averageCompletionDays: 2.4,
+      practicalAssessmentsCount: practicalAssessments.length
+    });
+  });
+
+  // 14. Evaluators List / Practical Rubrics Template
+  app.get('/api/academy/practical-rubrics', (req, res) => {
+    res.json({
+      maxScore: 30,
+      passingScore: 24,
+      rubrics: [
+        { key: 'toolHandling', labelEn: 'Tool Handling & Modern Equipment Mastery', labelHi: 'औजार व आधुनिक उपकरणों का सही संचालन', max: 5 },
+        { key: 'diagnosis', labelEn: 'Diagnostic Accuracy & Root-Cause Identification', labelHi: 'समस्या की सटीक पहचान व मूल कारण का पता लगाना', max: 5 },
+        { key: 'installation', labelEn: 'Execution Quality & Adherence to Codes', labelHi: 'कार्य की मजबूती और फिटिंग गुणवत्ता', max: 5 },
+        { key: 'safety', labelEn: 'PPE Usage, Isolation & Hazard Control', labelHi: 'सुरक्षा उपकरण (पीपीई), मेन कट-ऑफ व व्यक्तिगत सुरक्षा', max: 5 },
+        { key: 'finishing', labelEn: 'Aesthetic Finishing, Sealing & Alignment', labelHi: 'सफाई, सीलिंग व सुंदर फिनिशिंग', max: 5 },
+        { key: 'cleanliness', labelEn: 'Site Cleanup, Debris Disposal & Customer Handover', labelHi: 'कार्यस्थल की सफाई, कचरा हटाना व विनम्र हैंडओवर', max: 5 }
+      ],
+      recentEvaluations: practicalAssessments
     });
   });
 
@@ -969,6 +2167,406 @@ Keep replies concise, crisp, professional, and friendly. Use bold text and bulle
     }
   });
 
+
+  // Brand Logo Management Endpoints
+  app.post('/api/brand/logo', async (req, res) => {
+    try {
+      let svgContent = '';
+      if (typeof req.body === 'string') {
+        svgContent = req.body;
+      } else if (req.body && typeof req.body.svgContent === 'string') {
+        svgContent = req.body.svgContent;
+      }
+
+      if (!svgContent || !svgContent.includes('<svg')) {
+        return res.status(400).json({ error: 'Valid SVG content string is required' });
+      }
+
+      const publicDir = path.join(process.cwd(), 'public');
+      await fs.promises.mkdir(publicDir, { recursive: true });
+      await fs.promises.writeFile(path.join(publicDir, 'logo.svg'), svgContent, 'utf-8');
+      await fs.promises.writeFile(path.join(publicDir, 'logo-master.svg'), svgContent, 'utf-8');
+      await fs.promises.writeFile(path.join(publicDir, 'logo-transparent.svg'), svgContent, 'utf-8');
+
+      // Also copy to dist if dist exists
+      const distDir = path.join(process.cwd(), 'dist');
+      if (fs.existsSync(distDir)) {
+        await fs.promises.writeFile(path.join(distDir, 'logo.svg'), svgContent, 'utf-8');
+      }
+
+      res.json({ success: true, message: 'Brand logo updated successfully across the platform' });
+    } catch (err: any) {
+      console.error('[API Logo Error]:', err);
+      res.status(500).json({ error: 'Failed to update brand logo' });
+    }
+  });
+
+  app.get('/api/brand/logo', async (req, res) => {
+    try {
+      const logoPath = path.join(process.cwd(), 'public', 'logo.svg');
+      if (!fs.existsSync(logoPath)) {
+        return res.status(404).json({ error: 'Logo not found' });
+      }
+      const content = await fs.promises.readFile(logoPath, 'utf-8');
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.send(content);
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to read logo' });
+    }
+  });
+
+  // =========================================================================
+  // CARE & MAINTENANCE (HMC, AMC, QMC) REST API SUITE
+  // =========================================================================
+
+  const maintenancePlansData = [
+    {
+      id: 'hmc_basic',
+      title: 'Basic Care Home Plan',
+      titleHi: 'बेसिक केयर होम प्लान',
+      planType: 'HMC',
+      target: 'residential',
+      tier: 'basic',
+      priceMonthly: 1999,
+      priceAnnual: 21990,
+      visitLimitAnnual: 18,
+      emergencySupport: true,
+      priorityResponseHours: 4,
+      description: 'Essential preventive home upkeep for plumbing and electrical fixtures.',
+      descriptionHi: 'नलसाजी और बिजली जुड़नार के लिए आवश्यक घरेलू रखरखाव।',
+      features: ['2 Plumbing seasonal visits', '2 Electrical health audits', 'Emergency 4-hour breakdown support'],
+      featuresHi: ['2 प्लंबिंग मौसमी विज़िट', '2 इलेक्ट्रिकल ऑडिट', '4-घंटे इमरजेंसी ब्रेकडाउन सपोर्ट'],
+      categoriesIncluded: ['plumbing', 'electrical'],
+      active: true
+    },
+    {
+      id: 'hmc_smart',
+      title: 'Smart Care Home Plan',
+      titleHi: 'स्मार्ट केयर होम प्लान',
+      planType: 'HMC',
+      target: 'residential',
+      tier: 'smart',
+      popular: true,
+      badge: 'Most Popular',
+      priceMonthly: 3999,
+      priceAnnual: 39990,
+      visitLimitAnnual: 36,
+      emergencySupport: true,
+      priorityResponseHours: 4,
+      description: 'Comprehensive home protection covering AC servicing, pest control, plumbing & electrical.',
+      descriptionHi: 'एसी सर्विसिंग, कीट नियंत्रण, प्लंबिंग और इलेक्ट्रिकल सुरक्षा।',
+      features: ['2 AC Jet Wash Services', 'Quarterly Pest Control', 'Free Labour on all repairs', '4-Hour Emergency SLA'],
+      featuresHi: ['2 एसी जेट वॉश सर्विसिंग', 'त्रैमासिक कीट नियंत्रण', 'सभी मरम्मत पर मुफ्त लेबर', '4 घंटे में तकनीशियन'],
+      categoriesIncluded: ['plumbing', 'electrical', 'appliances', 'pest_control'],
+      active: true
+    },
+    {
+      id: 'amc_business',
+      title: 'Enterprise Business AMC',
+      titleHi: 'एंटरप्राइज बिजनेस एएमसी',
+      planType: 'AMC',
+      target: 'commercial',
+      tier: 'premium',
+      popular: true,
+      badge: 'Best for Businesses',
+      priceMonthly: 7999,
+      priceAnnual: 84990,
+      visitLimitAnnual: 96,
+      emergencySupport: true,
+      priorityResponseHours: 2,
+      description: 'Zero-downtime facility management for restaurants, offices, clinics and commercial hubs.',
+      descriptionHi: 'रेस्तरां, कार्यालयों और वाणिज्यिक हब के लिए शून्य-डाउनटाइम सुविधा प्रबंधन।',
+      features: ['Monthly Kitchen Exhaust & AC Servicing', '2-Hour Emergency SLA', 'Monthly Pest Control Audit', 'Dedicated Key Account Manager'],
+      featuresHi: ['मासिक किचन और एसी सर्विसिंग', '2 घंटे में इमरजेंसी तकनीशियन', 'मासिक कीट नियंत्रण', 'डेडिकेटेड अकाउंट मैनेजर'],
+      categoriesIncluded: ['hvac', 'plumbing', 'electrical', 'pest_control', 'cleaning'],
+      active: true
+    }
+  ];
+
+  let maintenanceContractsStore: any[] = [
+    {
+      id: 'ctr_01',
+      contractNumber: 'GKS-AMC-2026-1194',
+      target: 'commercial',
+      planType: 'AMC',
+      planTitle: 'The Grand Raipur Hotel - Facility AMC',
+      customerName: 'Rohit Singhania',
+      customerPhone: '+91 98271 88990',
+      customerEmail: 'rohit@grandhotel.com',
+      businessName: 'The Grand Raipur Hotel',
+      propertyType: 'Hotel & Banquets',
+      address: 'GE Road, Raipur, CG',
+      city: 'Raipur',
+      startDate: '2026-01-15',
+      endDate: '2027-01-15',
+      renewalDate: '2026-12-15',
+      status: 'active',
+      totalValue: 145000,
+      monthlyEquivalent: 12083,
+      paymentFrequency: 'annual',
+      paymentStatus: 'paid',
+      servicesCovered: ['HVAC Chillers Monthly', 'Pest Control Monthly', 'Commercial Kitchen Degreasing Monthly', 'Electrical DB Bi-Weekly'],
+      categoriesCovered: ['hvac', 'pest_control', 'cleaning', 'electrical'],
+      visitsTotal: 96,
+      visitsUsed: 62,
+      emergencySupport: true,
+      responseSlaHours: 2,
+      digitalAcceptedByCustomer: true,
+      adminApproved: true,
+      autoRenewal: true,
+      createdAt: '2026-01-15T09:00:00Z'
+    }
+  ];
+
+  let maintenanceRequestsStore: any[] = [
+    {
+      id: 'req_01',
+      contractId: 'ctr_01',
+      contractNumber: 'GKS-AMC-2026-1194',
+      customerName: 'The Grand Raipur Hotel (Rohit)',
+      customerPhone: '+91 98271 88990',
+      propertyAddress: 'GE Road, Raipur, CG',
+      category: 'hvac',
+      serviceName: 'Commercial Cassette AC 3.0 Ton Chilling Issue',
+      problemDescription: 'Main dining hall cassette AC tripping circuit breaker after 15 mins of operation.',
+      preferredDate: '2026-09-18',
+      preferredTimeSlot: 'Immediate Emergency',
+      isEmergency: true,
+      status: 'assigned',
+      assignedPartnerId: 'prt_401',
+      assignedPartnerName: 'Manoj Sahu (Certified HVAC Specialist)',
+      assignedPartnerPhone: '+91 97555 12345',
+      assignedPartnerRating: 4.9,
+      createdAt: '2026-09-18T04:30:00Z'
+    }
+  ];
+
+  let maintenanceAssetsStore: any[] = [
+    {
+      id: 'ast_01',
+      businessName: 'The Urban Bistro & Café',
+      branchLocation: 'VIP Road, Raipur',
+      category: 'AC Cassette',
+      brand: 'Daikin 3.0 Ton',
+      model: 'FCQ-100',
+      serialNumber: 'DK-2024-9982-C',
+      installationDate: '2024-05-10',
+      warrantyStatus: 'extended_amc',
+      nextServiceDue: '2026-10-15',
+      serviceHistoryCount: 6
+    }
+  ];
+
+  let maintenanceLeadsStore: any[] = [
+    {
+      id: 'lead_01',
+      name: 'Dr. Vivek Sharma',
+      phone: '+91 94252 77889',
+      email: 'dr.sharma@sanctuaryclinic.com',
+      propertyOrBusiness: 'Sanctuary Multispeciality Clinic (4,500 sq.ft.)',
+      target: 'commercial',
+      planType: 'AMC',
+      estimatedValue: 88000,
+      stage: 'quotation_sent',
+      assignedAgent: 'Pooja (Key Accounts)',
+      notes: 'Clean room HVAC and monthly pest audit quote provided.',
+      createdAt: '2026-09-17T11:00:00Z'
+    }
+  ];
+
+  let maintenancePricingRulesStore = {
+    baseResidentialMonthly: 1499,
+    baseCommercialPerSqftAnnual: 35,
+    frequencyMultipliers: {
+      weekly: 4.0,
+      fortnightly: 2.2,
+      monthly: 1.0,
+      'bi-monthly': 0.65,
+      quarterly: 0.40,
+      'half-yearly': 0.25,
+      annual: 0.15
+    },
+    emergency2hrSurchargeAnnual: 9999,
+    emergency4hrSurchargeAnnual: 4999,
+    gstRatePercent: 18,
+    annualAdvanceDiscountPercent: 15
+  };
+
+  // 1. Get Maintenance Plans
+  app.get('/api/maintenance/plans', (req, res) => {
+    res.json({ success: true, count: maintenancePlansData.length, plans: maintenancePlansData });
+  });
+
+  // 2. Add / Update Maintenance Plan (Admin)
+  app.post('/api/maintenance/plans', (req, res) => {
+    const newPlan = req.body;
+    if (!newPlan || !newPlan.title) {
+      return res.status(400).json({ success: false, error: 'Plan title is required' });
+    }
+    const idx = maintenancePlansData.findIndex(p => p.id === newPlan.id);
+    if (idx >= 0) {
+      maintenancePlansData[idx] = { ...maintenancePlansData[idx], ...newPlan };
+    } else {
+      maintenancePlansData.push({ id: `plan_${Date.now()}`, ...newPlan });
+    }
+    res.json({ success: true, message: 'Plan saved successfully', plans: maintenancePlansData });
+  });
+
+  // 3. Compute Quotation for Custom Plan Builder
+  app.post('/api/maintenance/quote', (req, res) => {
+    try {
+      const state = req.body || {};
+      const target = state.target || 'residential';
+      const categories = state.selectedCategories || ['plumbing', 'electrical'];
+      const durationMonths = Number(state.contractDurationMonths) || 12;
+      const isAnnual = state.paymentFrequency === 'annual';
+
+      let baseMonthly = target === 'residential' 
+        ? maintenancePricingRulesStore.baseResidentialMonthly 
+        : Math.max(3999, Math.round((Number(state.areaSqft) || 1500) * 0.02 * (maintenancePricingRulesStore.baseCommercialPerSqftAnnual / 12)));
+
+      // Add category adjustments
+      baseMonthly += Math.max(0, categories.length - 2) * 500;
+
+      let emergencySurcharge = 0;
+      if (state.emergencySupport) {
+        emergencySurcharge = state.priorityResponse === 'rapid_2hr'
+          ? maintenancePricingRulesStore.emergency2hrSurchargeAnnual
+          : maintenancePricingRulesStore.emergency4hrSurchargeAnnual;
+      }
+
+      const rawAnnual = (baseMonthly * 12) + emergencySurcharge;
+      const discount = isAnnual ? Math.round(rawAnnual * (maintenancePricingRulesStore.annualAdvanceDiscountPercent / 100)) : 0;
+      const taxable = rawAnnual - discount;
+      const gst = Math.round(taxable * (maintenancePricingRulesStore.gstRatePercent / 100));
+      const grandTotal = taxable + gst;
+
+      const quote = {
+        quotationNumber: `GKS-QTE-${Date.now().toString().slice(-6)}`,
+        target,
+        planType: target === 'residential' ? 'HMC' : 'AMC',
+        totalVisits: categories.length * (target === 'residential' ? 6 : 12),
+        durationMonths,
+        baseAmount: rawAnnual - emergencySurcharge,
+        emergencySurcharge,
+        discountAmount: discount,
+        subtotal: taxable,
+        gstRatePercent: maintenancePricingRulesStore.gstRatePercent,
+        gstAmount: gst,
+        grandTotal,
+        monthlyEquivalent: Math.round(grandTotal / 12),
+        validUntilDays: 15,
+        termsSummary: [
+          'All routine inspection labour covered with ₹0 additional service call charge.',
+          'Guaranteed emergency breakdown technician arrival SLA as per plan tier.',
+          '100% police-verified and certified Gharkasathi service partners.'
+        ]
+      };
+
+      res.json({ success: true, quote });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // 4. Contracts Endpoints
+  app.get('/api/maintenance/contracts', (req, res) => {
+    res.json({ success: true, contracts: maintenanceContractsStore });
+  });
+
+  app.post('/api/maintenance/contracts', (req, res) => {
+    const contract = req.body;
+    if (!contract || !contract.customerName) {
+      return res.status(400).json({ success: false, error: 'Customer details required' });
+    }
+    const newContract = {
+      id: `ctr_${Date.now()}`,
+      contractNumber: `GKS-${contract.planType || 'HMC'}-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      createdAt: new Date().toISOString(),
+      status: 'active',
+      visitsUsed: 0,
+      ...contract
+    };
+    maintenanceContractsStore.unshift(newContract);
+    res.json({ success: true, contract: newContract });
+  });
+
+  // 5. Service Requests Endpoints
+  app.get('/api/maintenance/requests', (req, res) => {
+    res.json({ success: true, requests: maintenanceRequestsStore });
+  });
+
+  app.post('/api/maintenance/requests', (req, res) => {
+    const reqData = req.body;
+    if (!reqData || !reqData.problemDescription) {
+      return res.status(400).json({ success: false, error: 'Problem description is required' });
+    }
+    const newRequest = {
+      id: `req_${Date.now().toString().slice(-5)}`,
+      createdAt: new Date().toISOString(),
+      status: 'scheduled',
+      ...reqData
+    };
+    maintenanceRequestsStore.unshift(newRequest);
+
+    // Deduct 1 visit from associated contract if exists
+    if (newRequest.contractId) {
+      const ctr = maintenanceContractsStore.find(c => c.id === newRequest.contractId);
+      if (ctr) {
+        ctr.visitsUsed = Math.min(ctr.visitsTotal, (ctr.visitsUsed || 0) + 1);
+      }
+    }
+
+    res.json({ success: true, request: newRequest });
+  });
+
+  app.patch('/api/maintenance/requests/:id', (req, res) => {
+    const { id } = req.params;
+    const updates = req.body;
+    const idx = maintenanceRequestsStore.findIndex(r => r.id === id);
+    if (idx === -1) {
+      return res.status(404).json({ success: false, error: 'Request not found' });
+    }
+    maintenanceRequestsStore[idx] = { ...maintenanceRequestsStore[idx], ...updates };
+    res.json({ success: true, request: maintenanceRequestsStore[idx] });
+  });
+
+  // 6. Assets & Machinery
+  app.get('/api/maintenance/assets', (req, res) => {
+    res.json({ success: true, assets: maintenanceAssetsStore });
+  });
+
+  app.post('/api/maintenance/assets', (req, res) => {
+    const asset = req.body;
+    const newAsset = { id: `ast_${Date.now()}`, ...asset };
+    maintenanceAssetsStore.unshift(newAsset);
+    res.json({ success: true, asset: newAsset });
+  });
+
+  // 7. CRM Leads
+  app.get('/api/maintenance/crm-leads', (req, res) => {
+    res.json({ success: true, leads: maintenanceLeadsStore });
+  });
+
+  app.post('/api/maintenance/crm-leads', (req, res) => {
+    const lead = req.body;
+    const newLead = { id: `lead_${Date.now()}`, createdAt: new Date().toISOString(), stage: 'new', ...lead };
+    maintenanceLeadsStore.unshift(newLead);
+    res.json({ success: true, lead: newLead });
+  });
+
+  // 8. Pricing Rules
+  app.get('/api/maintenance/pricing-rules', (req, res) => {
+    res.json({ success: true, pricingRules: maintenancePricingRulesStore });
+  });
+
+  app.put('/api/maintenance/pricing-rules', (req, res) => {
+    maintenancePricingRulesStore = { ...maintenancePricingRulesStore, ...req.body };
+    res.json({ success: true, pricingRules: maintenancePricingRulesStore });
+  });
+
+  // Static assets from public folder
+  app.use(express.static(path.join(process.cwd(), 'public')));
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {

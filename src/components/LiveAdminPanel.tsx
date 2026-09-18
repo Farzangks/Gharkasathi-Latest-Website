@@ -32,7 +32,11 @@ import {
   Receipt,
   Percent,
   Lock,
-  KeyRound
+  KeyRound,
+  Smartphone,
+  UserCheck,
+  UserPlus,
+  Award
 } from 'lucide-react';
 import { 
   LiveBooking, 
@@ -44,9 +48,29 @@ import {
   BroadcastNotification,
   PlatformTaxConfig
 } from '../types';
+import { AdminPartnerManager } from './AdminPartnerManager';
+import { PartnerAppCompanion } from './PartnerAppCompanion';
+import { FlutterConnectHub } from './FlutterConnectHub';
+import { AdminAcademyManager } from './AdminAcademyManager';
+import { AdminCareMaintenancePanel } from './maintenance/AdminCareMaintenancePanel';
 
 export const LiveAdminPanel: React.FC = () => {
-  const [activeSubTab, setActiveSubTab] = useState<'bookings' | 'services' | 'enquiries' | 'sell' | 'notifications' | 'tax' | 'gateway' | 'security'>('bookings');
+  const [activeSubTab, setActiveSubTab] = useState<
+    'bookings' | 
+    'care_maintenance' |
+    'partners' | 
+    'academy' |
+    'services' | 
+    'enquiries' | 
+    'sell' | 
+    'notifications' | 
+    'tax' | 
+    'gateway' | 
+    'security' | 
+    'partner_app' | 
+    'flutter_connect'
+  >('bookings');
+  const [companionPartnerId, setCompanionPartnerId] = useState<string>('PRV-101');
   
   // Core Operational State
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
@@ -600,6 +624,70 @@ export const LiveAdminPanel: React.FC = () => {
         </button>
 
         <button
+          onClick={() => setActiveSubTab('care_maintenance')}
+          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeSubTab === 'care_maintenance'
+              ? 'border-red-600 text-red-800 bg-white rounded-t-lg'
+              : 'border-transparent text-stone-600 hover:text-stone-900'
+          }`}
+        >
+          <ShieldCheck className="w-3.5 h-3.5 text-red-600" />
+          Care &amp; Maintenance (AMC)
+          <span className="px-1.5 py-0.2 rounded text-[9px] bg-red-100 text-red-800 font-extrabold">New</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('partners')}
+          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeSubTab === 'partners'
+              ? 'border-emerald-600 text-emerald-800 bg-white rounded-t-lg'
+              : 'border-transparent text-stone-600 hover:text-stone-900'
+          }`}
+        >
+          <Users className="w-3.5 h-3.5 text-emerald-600" />
+          Partner Fleet &amp; KYC
+          <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-100 text-emerald-800 font-extrabold">Verified</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('academy')}
+          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeSubTab === 'academy'
+              ? 'border-amber-600 text-amber-900 bg-white rounded-t-lg shadow-xs'
+              : 'border-transparent text-stone-600 hover:text-stone-900'
+          }`}
+        >
+          <Award className="w-3.5 h-3.5 text-amber-600" />
+          Skill Academy &amp; CSGSP Certification
+          <span className="px-1.5 py-0.2 rounded text-[9px] bg-amber-100 text-amber-900 font-extrabold">Certified</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('partner_app')}
+          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeSubTab === 'partner_app'
+              ? 'border-emerald-600 text-emerald-800 bg-white rounded-t-lg'
+              : 'border-transparent text-stone-600 hover:text-stone-900'
+          }`}
+        >
+          <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+          Partner Mobile App (Sim)
+          <span className="px-1.5 py-0.2 rounded text-[9px] bg-amber-100 text-amber-800 font-extrabold">Live Test</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('flutter_connect')}
+          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeSubTab === 'flutter_connect'
+              ? 'border-emerald-600 text-emerald-800 bg-white rounded-t-lg'
+              : 'border-transparent text-stone-600 hover:text-stone-900'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-sky-600" />
+          Flutter Architecture Hub
+        </button>
+
+        <button
           onClick={() => setActiveSubTab('services')}
           className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
             activeSubTab === 'services'
@@ -685,6 +773,13 @@ export const LiveAdminPanel: React.FC = () => {
           <span className="px-1.5 py-0.2 rounded text-[9px] bg-red-100 text-red-800 font-extrabold">Protected</span>
         </button>
       </div>
+
+      {/* ==================================================== */}
+      {/* SUB-TAB: CARE & MAINTENANCE (AMC/HMC/CONTRACTS)     */}
+      {/* ==================================================== */}
+      {activeSubTab === 'care_maintenance' && (
+        <AdminCareMaintenancePanel />
+      )}
 
       {/* ==================================================== */}
       {/* SUB-TAB 1: LIVE BOOKINGS & PARTNER FLEET            */}
@@ -853,6 +948,63 @@ export const LiveAdminPanel: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ==================================================== */}
+      {/* SUB-TAB: SERVICE PARTNER FLEET & KYC VERIFICATION   */}
+      {/* ==================================================== */}
+      {activeSubTab === 'partners' && (
+        <AdminPartnerManager
+          onRefreshStats={fetchData}
+          onOpenCompanion={(partnerId) => {
+            setCompanionPartnerId(partnerId);
+            setActiveSubTab('partner_app');
+          }}
+        />
+      )}
+
+      {/* ==================================================== */}
+      {/* SUB-TAB: GHARKASATHI SKILL ACADEMY & CSGSP CERTIFICATION */}
+      {/* ==================================================== */}
+      {activeSubTab === 'academy' && (
+        <AdminAcademyManager
+          providers={providers}
+          onRefreshProviders={fetchData}
+        />
+      )}
+
+      {/* ==================================================== */}
+      {/* SUB-TAB: PARTNER APP LIVE COMPANION & SIMULATOR      */}
+      {/* ==================================================== */}
+      {activeSubTab === 'partner_app' && (
+        <div className="space-y-4">
+          <div className="bg-white p-4 rounded-xl border border-stone-200 flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-bold text-stone-900 flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-emerald-600" />
+                Gharkasathi Partner Mobile App Simulator
+              </h4>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Simulates real-time technician duty toggle, 30s dispatch alert ring, Start OTP check, and 85% wallet payout.
+              </p>
+            </div>
+            <button
+              onClick={() => setActiveSubTab('flutter_connect')}
+              className="px-3 py-1.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-800 text-xs font-bold hover:bg-sky-100 transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Flutter Source Code Hub &rarr;</span>
+            </button>
+          </div>
+          <PartnerAppCompanion defaultPartnerId={companionPartnerId} />
+        </div>
+      )}
+
+      {/* ==================================================== */}
+      {/* SUB-TAB: FLUTTER APP CONNECTIVITY & ARCHITECTURE HUB */}
+      {/* ==================================================== */}
+      {activeSubTab === 'flutter_connect' && (
+        <FlutterConnectHub />
       )}
 
       {/* ==================================================== */}

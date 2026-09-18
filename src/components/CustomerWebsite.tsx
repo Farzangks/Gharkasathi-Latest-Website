@@ -34,9 +34,12 @@ import {
   Instagram,
   Youtube,
   Linkedin,
-  Twitter
+  Twitter,
+  Play
 } from 'lucide-react';
 import { GharkasathiLogo, GharkasathiEmblem } from './GharkasathiLogo';
+import { BrandLogoModal } from './BrandLogoModal';
+import { UnifiedSearchBar } from './UnifiedSearchBar';
 import { 
   CORE_SERVICE_CATEGORIES, 
   CATALOG_SERVICES, 
@@ -51,6 +54,9 @@ import { ConstructionBoqCalculator } from './ConstructionBoqCalculator';
 import { ScheduleSiteVisitModal } from './ScheduleSiteVisitModal';
 import { ModularKitchenModal } from './ModularKitchenModal';
 import { GharkasathiAiAssistant } from './GharkasathiAiAssistant';
+import { PartnerRegistrationModal } from './PartnerRegistrationModal';
+import { CareAndMaintenanceSection } from './maintenance/CareAndMaintenanceSection';
+import { CareMaintenanceModal } from './maintenance/CareMaintenanceModal';
 
 interface CustomerWebsiteProps {
   onOpenAdmin?: () => void;
@@ -72,6 +78,33 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
   const [isModularKitchenModalOpen, setIsModularKitchenModalOpen] = useState<boolean>(false);
   const [isRealEstateModalOpen, setIsRealEstateModalOpen] = useState<boolean>(false);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState<boolean>(false);
+  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState<boolean>(false);
+  const [isLogoModalOpen, setIsLogoModalOpen] = useState<boolean>(false);
+  const [partnerModalTab, setPartnerModalTab] = useState<'partner' | 'diy'>('partner');
+
+  // Care & Maintenance Modal state
+  const [isCareModalOpen, setIsCareModalOpen] = useState<boolean>(false);
+  const [careModalTab, setCareModalTab] = useState<'explore' | 'builder' | 'dashboard' | 'assets'>('explore');
+  const [careModalTarget, setCareModalTarget] = useState<'residential' | 'commercial'>('residential');
+
+  const handleOpenCareModal = (
+    tab: 'explore' | 'builder' | 'dashboard' | 'assets' = 'explore', 
+    target: 'residential' | 'commercial' = 'residential'
+  ) => {
+    setCareModalTab(tab);
+    setCareModalTarget(target);
+    setIsCareModalOpen(true);
+  };
+
+  const openPartnerRegistration = () => {
+    setPartnerModalTab('partner');
+    setIsPartnerModalOpen(true);
+  };
+
+  const openDiyGuides = () => {
+    setPartnerModalTab('diy');
+    setIsPartnerModalOpen(true);
+  };
 
   // Cart State with initial authentic item
   const [cart, setCart] = useState<CartItem[]>([
@@ -243,13 +276,20 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20 gap-3">
-            {/* Logo & Tagline */}
+            {/* Logo & Tagline (Clickable to open official Brand Logo Center) */}
             <div className="flex items-center gap-4">
-              <GharkasathiLogo 
-                size="md" 
-                variant="light" 
-                sloganText="All your property Need, Under One Roof." 
-              />
+              <button
+                onClick={() => setIsLogoModalOpen(true)}
+                title="Gharkasathi™ Official Brand Identity (Click to view or upload SVG)"
+                className="text-left group cursor-pointer hover:opacity-95 transition-opacity"
+              >
+                <GharkasathiLogo 
+                  size="md" 
+                  variant="light" 
+                  layout="master-lockup"
+                  sloganText="All Your Home Needs, Under One Roof." 
+                />
+              </button>
             </div>
 
             {/* Desktop Navigation Links */}
@@ -277,9 +317,16 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
               </button>
               <button 
                 onClick={() => scrollToServices('all')}
-                className="text-red-600 hover:text-red-700 font-extrabold transition-colors cursor-pointer"
+                className="text-stone-700 hover:text-red-600 font-bold transition-colors cursor-pointer"
               >
                 Home Services
+              </button>
+              <button 
+                onClick={() => handleOpenCareModal('explore', 'residential')}
+                className="text-red-600 hover:text-red-700 font-extrabold transition-colors cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 border border-red-200"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
+                <span>Care &amp; Maintenance (AMC)</span>
               </button>
             </nav>
 
@@ -315,6 +362,26 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                 )}
               </button>
 
+              {/* Do It On Your Own (DIY) Hub CTA */}
+              <button
+                onClick={openDiyGuides}
+                className="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold border border-stone-300 shadow-xs transition-colors cursor-pointer"
+                title="Free DIY home troubleshooting guides, tool lists & maintenance safety"
+              >
+                <Wrench className="w-3.5 h-3.5 text-amber-600" />
+                <span>Do It On Your Own</span>
+              </button>
+
+              {/* Register as Service Partner CTA */}
+              <button
+                onClick={openPartnerRegistration}
+                className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold border border-emerald-700 shadow-xs transition-colors cursor-pointer"
+                title="Earn ₹25,000 - ₹75,000/mo with daily payouts & zero onboarding fee"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" />
+                <span>Register as Service Partner</span>
+              </button>
+
               {/* Primary Header CTA */}
               <button
                 onClick={() => scrollToServices('all')}
@@ -344,33 +411,23 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
             <strong className="text-stone-900">Buy. Build. Design. Maintain.</strong> — From finding verified land to turnkey construction, custom interiors, and 30-minute verified home maintenance.
           </p>
 
-          {/* Instant Global Search Bar */}
-          <div className="max-w-xl mx-auto pt-2">
-            <div className="relative flex items-center">
-              <Search className="w-4 h-4 text-stone-400 absolute left-4 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search 'Sofa Cleaning', 'Electrician', 'Plumber', 'Duplex BOQ'..."
-                className="w-full pl-11 pr-24 py-3 bg-white border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 shadow-sm focus:outline-hidden focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-all"
-              />
-              {searchQuery ? (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 px-2 py-1 text-xs text-stone-400 hover:text-stone-700 cursor-pointer"
-                >
-                  Clear
-                </button>
-              ) : (
-                <button
-                  onClick={() => scrollToServices()}
-                  className="absolute right-2 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
-                >
-                  Search
-                </button>
-              )}
-            </div>
+          {/* Instant Global Dynamic Animated Unified Search Bar */}
+          <div className="max-w-2xl mx-auto pt-2">
+            <UnifiedSearchBar
+              variant="hero"
+              onSelectService={(service) => {
+                setSelectedServiceForOptions(service);
+              }}
+              onSelectProperty={(property) => {
+                setSelectedPropertyForVisit(property);
+              }}
+              onOpenBoq={() => setIsBoqModalOpen(true)}
+              onOpenModularKitchen={() => setIsModularKitchenModalOpen(true)}
+              onSearchSubmit={(queryStr) => {
+                setSearchQuery(queryStr);
+                scrollToServices();
+              }}
+            />
           </div>
         </div>
       </section>
@@ -706,6 +763,9 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
         </div>
       </section>
 
+      {/* 5.5 CARE & MAINTENANCE (HMC, QMC, AMC & CUSTOM BUILDER) */}
+      <CareAndMaintenanceSection onOpenModal={handleOpenCareModal} />
+
       {/* 6. TRUST & BRAND ASSURANCE (Minimal 4-Pillar Row) */}
       <section className="py-10 bg-white border-y border-stone-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -854,7 +914,30 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
         selectedCity={selectedCity}
       />
 
-      {/* 13. SATHI AI ASSISTANT (FLOATING) */}
+      {/* 13. PARTNER SELF-ONBOARDING & DIY HUB MODAL */}
+      <PartnerRegistrationModal
+        isOpen={isPartnerModalOpen}
+        onClose={() => setIsPartnerModalOpen(false)}
+        selectedCity={selectedCity}
+        initialTab={partnerModalTab}
+        onBookService={(cat) => scrollToServices(cat)}
+      />
+
+      {/* Brand Identity & Official SVG Logo Center Modal */}
+      <BrandLogoModal
+        isOpen={isLogoModalOpen}
+        onClose={() => setIsLogoModalOpen(false)}
+      />
+
+      {/* Care & Maintenance Master Portal Modal */}
+      <CareMaintenanceModal
+        isOpen={isCareModalOpen}
+        onClose={() => setIsCareModalOpen(false)}
+        initialTab={careModalTab}
+        initialTarget={careModalTarget}
+      />
+
+      {/* 14. SATHI AI ASSISTANT (FLOATING) */}
       <GharkasathiAiAssistant
         onOpenBoq={() => setIsBoqModalOpen(true)}
         onOpenSiteVisit={() => {
@@ -872,11 +955,18 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Column 1: Brand */}
             <div className="space-y-3 md:col-span-1">
-              <GharkasathiLogo 
-                size="md" 
-                variant="dark" 
-                sloganText="All your property Need, Under One Roof." 
-              />
+              <button
+                onClick={() => setIsLogoModalOpen(true)}
+                title="Gharkasathi™ Official Brand Identity"
+                className="text-left cursor-pointer hover:opacity-90 transition-opacity"
+              >
+                <GharkasathiLogo 
+                  size="md" 
+                  variant="dark" 
+                  layout="master-lockup"
+                  sloganText="All Your Home Needs, Under One Roof." 
+                />
+              </button>
               <p className="text-xs text-stone-400 leading-relaxed pt-1">
                 India's unified property ecosystem — from land purchase to turnkey construction, custom modular interiors, and 30-minute verified home maintenance.
               </p>
@@ -956,6 +1046,27 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                 <li>
                   <button onClick={() => scrollToServices('all')} className="hover:text-white cursor-pointer">
                     4. Home Services (9 Categories)
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => handleOpenCareModal('explore', 'residential')} className="text-red-400 hover:text-red-300 font-bold cursor-pointer flex items-center gap-1 text-left">
+                    <span>5. Care &amp; Maintenance (HMC, AMC, QMC)</span>
+                  </button>
+                </li>
+                <li className="pt-2 border-t border-stone-800 space-y-1.5">
+                  <button 
+                    onClick={openPartnerRegistration} 
+                    className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1.5 cursor-pointer text-left"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>★ Register as a Service Partner</span>
+                  </button>
+                  <button 
+                    onClick={openDiyGuides} 
+                    className="text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1.5 cursor-pointer text-left text-[11px]"
+                  >
+                    <Wrench className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span>★ Do It On Your Own (DIY Hub)</span>
                   </button>
                 </li>
               </ul>

@@ -73,10 +73,10 @@ app.get('/', (req, res) => {
         <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center font-black text-xl shadow-md">G</div>
         <div>
           <div class="flex items-center gap-1.5">
-            <span class="font-extrabold text-lg sm:text-xl tracking-tight text-stone-900">GHARKASATHI</span>
+            <span class="font-extrabold text-lg sm:text-xl tracking-tight text-stone-900">Gharkasathi</span>
             <span class="text-[10px] font-black px-1.5 py-0.2 rounded bg-red-100 text-red-700 uppercase">Live</span>
           </div>
-          <p class="text-[10px] text-stone-500 font-medium">All your property Need, Under One Roof.</p>
+          <p class="text-[10px] text-stone-500 font-medium">All Your Home Needs, Under One Roof.</p>
         </div>
       </div>
       <div class="flex items-center gap-3">

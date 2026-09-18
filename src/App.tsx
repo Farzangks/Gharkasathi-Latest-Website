@@ -52,7 +52,15 @@ export default function App() {
   // Shortcut (Ctrl+Shift+A) or hash/query param for admin login
   useEffect(() => {
     const checkAdminQuery = () => {
-      if (window.location.hash === '#admin' || window.location.search.includes('admin=true')) {
+      const path = window.location.pathname.toLowerCase();
+      if (
+        path === '/admin' || 
+        path === '/admin/' || 
+        path === '/cto' || 
+        path === '/cto/' || 
+        window.location.hash === '#admin' || 
+        window.location.search.includes('admin=true')
+      ) {
         handleRequestAdminAccess();
       }
     };
@@ -170,7 +178,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-100 text-stone-900 font-sans antialiased flex flex-col">
+    <div className="min-h-screen bg-stone-100 text-stone-900 font-sans antialiased flex flex-col relative">
       {/* Top Navigation */}
       <ExecutiveTopBar 
         currentMode="cto"

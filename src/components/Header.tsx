@@ -10,6 +10,7 @@ import {
 import { User } from 'firebase/auth';
 
 import { GharkasathiLogo, GharkasathiEmblem } from './GharkasathiLogo';
+import { BrandLogoModal } from './BrandLogoModal';
 
 interface HeaderProps {
   user: User | null;
@@ -28,33 +29,27 @@ export const Header: React.FC<HeaderProps> = ({
   viewMode = 'cto',
   onToggleViewMode,
 }) => {
-  return (
-    <header id="main-header" className="bg-white border-b border-stone-200 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
-        {/* Brand & Project Identity with Official Logo and Slogan */}
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-red-600 text-white flex items-center justify-center p-1 shadow-md shadow-red-600/20 shrink-0">
-            <GharkasathiEmblem className="w-8 h-8" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-black text-stone-900 tracking-tight uppercase">
-                GHARKASATHI
-              </h1>
-              <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-red-100 text-red-700 uppercase tracking-wider">
-                TM
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 uppercase tracking-wide">
-                CTO Console
-              </span>
-            </div>
-            <p className="text-xs text-stone-600 font-semibold tracking-tight">
-              All your property Need, Under One Roof.
-            </p>
-          </div>
-        </div>
+  const [isLogoModalOpen, setIsLogoModalOpen] = React.useState(false);
 
-        {/* Right side: View Toggle & Auth */}
+  return (
+    <>
+      <header id="main-header" className="bg-white border-b border-stone-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+          {/* Brand & Project Identity with Official Logo Lockup */}
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsLogoModalOpen(true)}
+              title="Click to view or upload official SVG Logo"
+              className="text-left group cursor-pointer hover:opacity-95 transition-opacity"
+            >
+              <GharkasathiLogo size="md" variant="light" layout="master-lockup" />
+            </button>
+            <span className="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 uppercase tracking-wide">
+              CTO Console
+            </span>
+          </div>
+
+          {/* Right side: View Toggle & Auth */}
         <div className="flex items-center gap-3">
           {onToggleViewMode && (
             <button
@@ -105,5 +100,11 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
     </header>
+
+    <BrandLogoModal 
+      isOpen={isLogoModalOpen} 
+      onClose={() => setIsLogoModalOpen(false)} 
+    />
+  </>
   );
 };

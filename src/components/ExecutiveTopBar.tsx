@@ -11,9 +11,11 @@ import {
   CheckCircle2,
   Rocket,
   Globe,
-  Lock
+  Lock,
+  Play
 } from 'lucide-react';
 import { GharkasathiEmblem } from './GharkasathiLogo';
+import { BrandLogoModal } from './BrandLogoModal';
 
 export type AppViewMode = 'website' | 'cto';
 
@@ -32,26 +34,32 @@ export const ExecutiveTopBar: React.FC<ExecutiveTopBarProps> = ({
   onOpenDomainModal,
   onLockAdmin
 }) => {
+  const [isLogoModalOpen, setIsLogoModalOpen] = React.useState(false);
   return (
-    <aside aria-label="Executive Control Header" className="bg-stone-950 text-stone-200 border-b border-stone-800 text-xs sticky top-0 z-50 shadow-md">
+    <>
+      <aside aria-label="Executive Control Header" className="bg-stone-950 text-stone-200 border-b border-stone-800 text-xs sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between py-2 gap-2">
           {/* Left: Brand Identity & Tagline */}
           <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
-            <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsLogoModalOpen(true)}
+              title="Gharkasathi™ Official Brand Identity (Click to view or upload SVG)"
+              className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity text-left"
+            >
               <div className="w-6 h-6 rounded-md bg-red-600 flex items-center justify-center p-0.5 shrink-0 shadow-xs">
                 <GharkasathiEmblem className="w-4 h-4 text-white" />
               </div>
-              <span className="font-black text-white tracking-wider text-xs uppercase">
-                GHARKASATHI
+              <span className="font-black text-white tracking-tight text-xs">
+                Gharkasathi
               </span>
               <span className="text-[10px] bg-red-950 text-red-400 font-extrabold px-1.5 py-0.2 rounded border border-red-800 hidden sm:inline">
                 TM
               </span>
-            </div>
+            </button>
 
             <div className="hidden lg:flex items-center gap-1.5 text-stone-400 text-[11px] pl-2 border-l border-stone-800">
-              <span className="text-stone-300 font-medium">All your property Need, Under One Roof.</span>
+              <span className="text-stone-300 font-medium">All Your Home Needs, Under One Roof.</span>
             </div>
 
             {/* City indicator */}
@@ -124,5 +132,11 @@ export const ExecutiveTopBar: React.FC<ExecutiveTopBarProps> = ({
         </div>
       </div>
     </aside>
+
+    <BrandLogoModal 
+      isOpen={isLogoModalOpen} 
+      onClose={() => setIsLogoModalOpen(false)} 
+    />
+  </>
   );
 };

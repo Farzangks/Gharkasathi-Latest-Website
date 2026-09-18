@@ -71,16 +71,163 @@ export interface LiveBooking {
   createdAt: string;
 }
 
+export type PartnerJourneyStatus = 
+  | 'registered'
+  | 'kyc_verified'
+  | 'professionally_verified'
+  | 'training_assigned'
+  | 'training_completed'
+  | 'assessment_passed'
+  | 'certified'
+  | 'suspended';
+
+export type PartnerPerformanceTier = 'standard' | 'pro' | 'elite';
+
+export interface PartnerCertificationItem {
+  id: string;
+  partnerId: string;
+  partnerName: string;
+  category: string; // e.g. 'Plumbing', 'Electrical', 'Appliance Repair', etc.
+  certificateId: string; // e.g. 'GK-CERT-PL-2026-000123'
+  issueDate: string;
+  validUntil: string;
+  status: 'ACTIVE' | 'EXPIRED' | 'SUSPENDED' | 'REVOKED';
+  quizScore: number;
+  practicalScore?: number;
+  evaluatorName?: string;
+  authorizedBy: string;
+  qrPayload: string;
+}
+
 export interface LiveProvider {
   id: string;
   name: string;
   phone: string;
+  whatsapp?: string;
   skills: string[];
   status: 'online' | 'on_job' | 'offline';
   rating: number;
   completedJobs: number;
   zone: string;
+  city?: string;
   walletBalance: number;
+  verificationStatus: 'verified' | 'pending_verification' | 'rejected' | 'suspended';
+  journeyStatus: PartnerJourneyStatus;
+  performanceTier?: PartnerPerformanceTier;
+  isCsgspCertified: boolean;
+  certifiedCategories: string[]; // e.g. ['Plumbing', 'Electrical']
+  certifications?: PartnerCertificationItem[];
+  experienceYears?: number;
+  aadharNumber?: string;
+  upiId?: string;
+  vehicleType?: string;
+  toolsOwned?: boolean;
+  appliedAt?: string;
+  verifiedAt?: string;
+  verifiedBy?: string;
+  onboardingSource?: 'manual_admin' | 'self_registered' | 'walk_in';
+  gharkasathiScore?: number;
+}
+
+export interface TrainingLesson {
+  id: string;
+  titleEn: string;
+  titleHi: string;
+  type: 'video' | 'reading' | 'images' | 'practical';
+  duration: string;
+  contentEn: string;
+  contentHi: string;
+  videoUrl?: string;
+  imageUrl?: string;
+}
+
+export interface TrainingModule {
+  id: string;
+  titleEn: string;
+  titleHi: string;
+  descriptionEn: string;
+  descriptionHi: string;
+  lessons: TrainingLesson[];
+}
+
+export interface QuizQuestion {
+  id: string;
+  questionEn: string;
+  questionHi: string;
+  optionsEn: string[];
+  optionsHi: string[];
+  correctIndex: number;
+  explanationEn: string;
+  explanationHi: string;
+  categoryTag: string;
+}
+
+export interface TrainingCourse {
+  id: string;
+  category: string; // 'Standard SOP' | 'Plumbing' | 'Electrical' | 'Carpentry' | 'Appliance Repair' | 'Cleaning' | 'Painting'
+  isCommonStandard?: boolean; // Gharkasathi Professional Standards
+  titleEn: string;
+  titleHi: string;
+  descriptionEn: string;
+  descriptionHi: string;
+  thumbnail: string;
+  passingScore: number; // e.g. 80
+  maxAttempts: number; // e.g. 3
+  cooldownHours: number; // e.g. 12
+  practicalRequired: boolean;
+  validityMonths: number; // e.g. 24 (0 for no expiry)
+  modules: TrainingModule[];
+  quiz: QuizQuestion[];
+}
+
+export interface TrainingProgress {
+  partnerId: string;
+  courseId: string;
+  status: 'enrolled' | 'in_progress' | 'completed' | 'assessment_passed' | 'failed';
+  completedLessonIds: string[];
+  quizAttempts: number;
+  bestQuizScore: number;
+  lastAttemptAt?: string;
+  practicalPassed?: boolean;
+  practicalScore?: number;
+  practicalComments?: string;
+  evaluatorName?: string;
+  assessmentDate?: string;
+}
+
+export interface PracticalAssessmentRecord {
+  id: string;
+  partnerId: string;
+  partnerName: string;
+  category: string;
+  evaluatorName: string;
+  evaluatorRole: 'Gharkasathi Trainer' | 'Gharkasathi Skill Evaluator' | 'Super Admin';
+  assessmentDate: string;
+  scores: {
+    toolHandling: number; // 1-5
+    diagnosis: number; // 1-5
+    installation: number; // 1-5
+    safety: number; // 1-5
+    finishing: number; // 1-5
+    cleanliness: number; // 1-5
+  };
+  totalScore: number; // max 30
+  passed: boolean;
+  comments: string;
+}
+
+export interface AcademyAnalytics {
+  totalEnrolled: number;
+  trainingStarted: number;
+  trainingCompleted: number;
+  assessmentAttempts: number;
+  passedCount: number;
+  failedCount: number;
+  passRate: number;
+  certifiedPartnersCount: number;
+  certificationsByCategory: Record<string, number>;
+  expiringSoonCount: number;
+  averageCompletionDays: number;
 }
 
 export interface AdminMetrics {
