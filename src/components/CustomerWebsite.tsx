@@ -57,6 +57,7 @@ import { GharkasathiAiAssistant } from './GharkasathiAiAssistant';
 import { PartnerRegistrationModal } from './PartnerRegistrationModal';
 import { CareAndMaintenanceSection } from './maintenance/CareAndMaintenanceSection';
 import { CareMaintenanceModal } from './maintenance/CareMaintenanceModal';
+import { FestiveBanner } from './FestiveBanner';
 
 interface CustomerWebsiteProps {
   onOpenAdmin?: () => void;
@@ -272,6 +273,9 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
         </div>
       </div>
 
+      {/* Festive Dynamic Offer Ticker */}
+      <FestiveBanner />
+
       {/* 2. Global Sleek Header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -294,9 +298,6 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
 
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center gap-6 text-xs font-bold text-stone-700">
-              <a href="#explore-verticals" className="hover:text-red-600 transition-colors">
-                Explore Verticals
-              </a>
               <button 
                 onClick={() => setIsRealEstateModalOpen(true)}
                 className="hover:text-red-600 transition-colors cursor-pointer"
@@ -323,10 +324,9 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
               </button>
               <button 
                 onClick={() => handleOpenCareModal('explore', 'residential')}
-                className="text-red-600 hover:text-red-700 font-extrabold transition-colors cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 border border-red-200"
+                className="hover:text-red-600 transition-colors cursor-pointer"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
-                <span>Care &amp; Maintenance (AMC)</span>
+                Care &amp; AMC
               </button>
             </nav>
 
@@ -362,16 +362,6 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                 )}
               </button>
 
-              {/* Do It On Your Own (DIY) Hub CTA */}
-              <button
-                onClick={openDiyGuides}
-                className="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold border border-stone-300 shadow-xs transition-colors cursor-pointer"
-                title="Free DIY home troubleshooting guides, tool lists & maintenance safety"
-              >
-                <Wrench className="w-3.5 h-3.5 text-amber-600" />
-                <span>Do It On Your Own</span>
-              </button>
-
               {/* Register as Service Partner CTA */}
               <button
                 onClick={openPartnerRegistration}
@@ -403,8 +393,14 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
             <span>Official Gharkasathi Platform &bull; All Property Needs Under One Roof</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-stone-900 tracking-tight max-w-3xl mx-auto leading-tight">
-            Everything Your Property Needs.
+          {/* Main Headline with High-Impact Red and White Highlights */}
+          <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight max-w-4xl mx-auto flex flex-col items-center justify-center gap-2 sm:gap-3">
+            <span className="inline-block bg-red-600 text-white px-4 sm:px-6 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-sm tracking-tight leading-tight">
+              Everything Your Property
+            </span>
+            <span className="inline-block bg-red-600 text-white px-5 sm:px-8 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-sm tracking-tight leading-tight">
+              Needs.
+            </span>
           </h1>
 
           <p className="text-stone-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
@@ -949,8 +945,31 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
         selectedCity={selectedCity}
       />
 
-      {/* 14. MINIMAL, OFFICIAL CORPORATE FOOTER */}
-      <footer className="bg-stone-900 text-stone-300 pt-12 pb-8 border-t border-stone-800 mt-auto">
+      {/* DIY Self-Help & Free Home Guides Callout (Down Bar) */}
+      <section className="bg-stone-950 border-t border-b border-stone-800 py-4 px-4">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+              <Wrench className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-amber-400 block">Do It On Your Own (DIY Home Care Hub)</span>
+              <p className="text-xs text-stone-400">Step-by-step self-repair guides, circuit safety rules, tool checklists &amp; quick plumbing fixes.</p>
+            </div>
+          </div>
+          <button
+            onClick={openDiyGuides}
+            className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 shadow-md active:scale-95"
+          >
+            <Wrench className="w-3.5 h-3.5 text-stone-950" />
+            <span>Do It On Your Own (DIY)</span>
+            <ArrowRight className="w-3.5 h-3.5 text-stone-950" />
+          </button>
+        </div>
+      </section>
+
+      {/* 14. REFINED GREYISH & LIGHT RED HIGHLIGHT CORPORATE FOOTER */}
+      <footer className="bg-stone-100 text-stone-700 pt-12 pb-8 border-t-2 border-red-100 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Column 1: Brand */}
@@ -962,21 +981,21 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
               >
                 <GharkasathiLogo 
                   size="md" 
-                  variant="dark" 
+                  variant="light" 
                   layout="master-lockup"
                   sloganText="All Your Home Needs, Under One Roof." 
                 />
               </button>
-              <p className="text-xs text-stone-400 leading-relaxed pt-1">
+              <p className="text-xs text-stone-600 leading-relaxed pt-1">
                 India's unified property ecosystem — from land purchase to turnkey construction, custom modular interiors, and 30-minute verified home maintenance.
               </p>
-              <div className="text-[11px] text-stone-400 font-mono pt-1">
+              <div className="text-[11px] text-stone-500 font-mono pt-1">
                 CIN: U45200CT2026PTC018290
               </div>
 
               {/* Official Social Media Channels */}
               <div className="pt-2">
-                <p className="text-[11px] uppercase tracking-wider font-semibold text-stone-400 mb-2">
+                <p className="text-[11px] uppercase tracking-wider font-bold text-stone-500 mb-2">
                   Follow Us Online
                 </p>
                 <div className="flex items-center gap-2">
@@ -984,7 +1003,7 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                     href="https://www.instagram.com/gharkasathi?stkn=bWJxcHJyNG93M2Rp&utm_source=qr"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-stone-800 hover:bg-[#E4405F] text-stone-300 hover:text-white flex items-center justify-center transition-all duration-200 shadow-xs group"
+                    className="w-8 h-8 rounded-lg bg-white hover:bg-[#E4405F] text-stone-600 hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs border border-stone-200 group"
                     title="Follow @gharkasathi on Instagram"
                     aria-label="Instagram"
                   >
@@ -994,7 +1013,7 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                     href="https://youtube.com/@gharkasathi?si=OY1QA5jOUFpAhXoP"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-stone-800 hover:bg-[#FF0000] text-stone-300 hover:text-white flex items-center justify-center transition-all duration-200 shadow-xs group"
+                    className="w-8 h-8 rounded-lg bg-white hover:bg-[#FF0000] text-stone-600 hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs border border-stone-200 group"
                     title="Subscribe to @gharkasathi on YouTube"
                     aria-label="YouTube"
                   >
@@ -1004,7 +1023,7 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                     href="https://www.linkedin.com/company/gharkasathi/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-stone-800 hover:bg-[#0A66C2] text-stone-300 hover:text-white flex items-center justify-center transition-all duration-200 shadow-xs group"
+                    className="w-8 h-8 rounded-lg bg-white hover:bg-[#0A66C2] text-stone-600 hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs border border-stone-200 group"
                     title="Connect with Gharkasathi on LinkedIn"
                     aria-label="LinkedIn"
                   >
@@ -1014,7 +1033,7 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                     href="https://x.com/gharkasathi?s=11"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-stone-800 hover:bg-black text-stone-300 hover:text-white flex items-center justify-center transition-all duration-200 shadow-xs group border border-transparent hover:border-stone-700"
+                    className="w-8 h-8 rounded-lg bg-white hover:bg-stone-900 text-stone-600 hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs border border-stone-200 group"
                     title="Follow @gharkasathi on X (Twitter)"
                     aria-label="X (Twitter)"
                   >
@@ -1026,46 +1045,46 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
 
             {/* Column 2: The 4 Verticals */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Explore Verticals</h4>
-              <ul className="space-y-2 text-xs text-stone-400">
+              <h4 className="text-xs font-black text-stone-900 uppercase tracking-wider">Explore Verticals</h4>
+              <ul className="space-y-2 text-xs text-stone-600">
                 <li>
-                  <button onClick={() => setIsRealEstateModalOpen(true)} className="hover:text-white cursor-pointer">
+                  <button onClick={() => setIsRealEstateModalOpen(true)} className="hover:text-red-600 cursor-pointer">
                     1. Real Estate (Buy, Sell, Plots)
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setIsBoqModalOpen(true)} className="hover:text-white cursor-pointer">
+                  <button onClick={() => setIsBoqModalOpen(true)} className="hover:text-red-600 cursor-pointer">
                     2. Construction (Turnkey Civil &amp; BOQ)
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setIsModularKitchenModalOpen(true)} className="hover:text-white cursor-pointer">
+                  <button onClick={() => setIsModularKitchenModalOpen(true)} className="hover:text-red-600 cursor-pointer">
                     3. Interior (Modular Kitchens &amp; 3D)
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => scrollToServices('all')} className="hover:text-white cursor-pointer">
+                  <button onClick={() => scrollToServices('all')} className="hover:text-red-600 cursor-pointer">
                     4. Home Services (9 Categories)
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => handleOpenCareModal('explore', 'residential')} className="text-red-400 hover:text-red-300 font-bold cursor-pointer flex items-center gap-1 text-left">
+                  <button onClick={() => handleOpenCareModal('explore', 'residential')} className="text-red-600 hover:text-red-700 font-bold cursor-pointer flex items-center gap-1 text-left">
                     <span>5. Care &amp; Maintenance (HMC, AMC, QMC)</span>
                   </button>
                 </li>
-                <li className="pt-2 border-t border-stone-800 space-y-1.5">
+                <li className="pt-2 border-t border-stone-200 space-y-1.5">
                   <button 
                     onClick={openPartnerRegistration} 
-                    className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1.5 cursor-pointer text-left"
+                    className="text-emerald-700 hover:text-emerald-800 font-bold flex items-center gap-1.5 cursor-pointer text-left"
                   >
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     <span>★ Register as a Service Partner</span>
                   </button>
                   <button 
                     onClick={openDiyGuides} 
-                    className="text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1.5 cursor-pointer text-left text-[11px]"
+                    className="text-amber-700 hover:text-amber-800 font-semibold flex items-center gap-1.5 cursor-pointer text-left text-[11px]"
                   >
-                    <Wrench className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <Wrench className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                     <span>★ Do It On Your Own (DIY Hub)</span>
                   </button>
                 </li>
@@ -1074,11 +1093,11 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
 
             {/* Column 3: 9 Service Categories */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">9 Home Services</h4>
-              <ul className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-xs text-stone-400">
+              <h4 className="text-xs font-black text-stone-900 uppercase tracking-wider">9 Home Services</h4>
+              <ul className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-xs text-stone-600">
                 {CORE_SERVICE_CATEGORIES.map(cat => (
                   <li key={cat.id}>
-                    <button onClick={() => scrollToServices(cat.id)} className="hover:text-white cursor-pointer text-left">
+                    <button onClick={() => scrollToServices(cat.id)} className="hover:text-red-600 cursor-pointer text-left">
                       {cat.name}
                     </button>
                   </li>
@@ -1088,32 +1107,32 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
 
             {/* Column 4: Contact & Operations */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Headquarters &amp; Support</h4>
-              <div className="text-xs text-stone-400 leading-relaxed">
+              <h4 className="text-xs font-black text-stone-900 uppercase tracking-wider">Headquarters &amp; Support</h4>
+              <div className="text-xs text-stone-600 leading-relaxed">
                 <a 
                   href="https://share.google/zXAKoT57h4zm1cYxi"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-white flex items-start gap-1.5 group transition-colors"
+                  className="hover:text-stone-900 flex items-start gap-1.5 group transition-colors"
                   title="Open Gharkasathi HQ in Google Maps"
                 >
-                  <MapPin className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                  <MapPin className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
                   <span>
                     4th Floor, Currency Tower, Telibandha, VIP Road, Raipur, Chhattisgarh 492001
-                    <span className="block text-[11px] text-red-400 group-hover:text-red-300 font-medium mt-0.5 underline">
+                    <span className="block text-[11px] text-red-600 group-hover:text-red-700 font-semibold mt-0.5 underline">
                       View on Google Maps &rarr;
                     </span>
                   </span>
                 </a>
               </div>
-              <div className="space-y-1.5 text-xs text-stone-300">
+              <div className="space-y-1.5 text-xs text-stone-700">
                 <p>
                   📞 Phone:{' '}
-                  <a href="tel:+917770999122" className="hover:text-white font-medium underline">
+                  <a href="tel:+917770999122" className="hover:text-red-600 font-semibold underline">
                     +91 77709 99122
                   </a>
-                  <span className="text-stone-500 mx-1">|</span>
-                  <a href="tel:+917477244487" className="hover:text-white font-medium underline">
+                  <span className="text-stone-400 mx-1">|</span>
+                  <a href="tel:+917477244487" className="hover:text-red-600 font-semibold underline">
                     +91 74772 44487
                   </a>
                 </p>
@@ -1123,25 +1142,25 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                     href="https://wa.me/917770999122?text=Hello%20Gharkasathi%20Support" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="hover:text-emerald-400 font-medium underline"
+                    className="hover:text-emerald-700 text-emerald-800 font-semibold underline"
                   >
                     +91 77709 99122
                   </a>
                 </p>
                 <p>
                   ✉️ Email:{' '}
-                  <a href="mailto:support@gharkasathi.com" className="hover:text-white font-medium underline">
+                  <a href="mailto:support@gharkasathi.com" className="hover:text-red-600 font-medium underline">
                     support@gharkasathi.com
                   </a>
                 </p>
-                <div className="pt-2 border-t border-stone-800">
-                  <p className="text-[11px] text-stone-400 font-medium mb-1.5">Official Social Channels:</p>
+                <div className="pt-2 border-t border-stone-200">
+                  <p className="text-[11px] text-stone-500 font-medium mb-1.5">Official Social Channels:</p>
                   <div className="flex flex-wrap gap-1.5 text-[11px]">
                     <a 
                       href="https://www.instagram.com/gharkasathi?stkn=bWJxcHJyNG93M2Rp&utm_source=qr" 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="px-2 py-1 rounded-md bg-stone-800/90 hover:bg-[#E4405F]/20 text-stone-300 hover:text-[#E4405F] transition-colors flex items-center gap-1 border border-stone-800 hover:border-[#E4405F]/40"
+                      className="px-2 py-1 rounded-md bg-white hover:bg-[#E4405F]/10 text-stone-700 hover:text-[#E4405F] transition-colors flex items-center gap-1 border border-stone-200 hover:border-[#E4405F]/40 shadow-2xs"
                     >
                       <Instagram className="w-3 h-3 text-[#E4405F]" />
                       <span>Instagram</span>
@@ -1150,7 +1169,7 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                       href="https://youtube.com/@gharkasathi?si=OY1QA5jOUFpAhXoP" 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="px-2 py-1 rounded-md bg-stone-800/90 hover:bg-[#FF0000]/20 text-stone-300 hover:text-[#FF0000] transition-colors flex items-center gap-1 border border-stone-800 hover:border-[#FF0000]/40"
+                      className="px-2 py-1 rounded-md bg-white hover:bg-[#FF0000]/10 text-stone-700 hover:text-[#FF0000] transition-colors flex items-center gap-1 border border-stone-200 hover:border-[#FF0000]/40 shadow-2xs"
                     >
                       <Youtube className="w-3 h-3 text-[#FF0000]" />
                       <span>YouTube</span>
@@ -1159,7 +1178,7 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                       href="https://www.linkedin.com/company/gharkasathi/" 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="px-2 py-1 rounded-md bg-stone-800/90 hover:bg-[#0A66C2]/20 text-stone-300 hover:text-[#0A66C2] transition-colors flex items-center gap-1 border border-stone-800 hover:border-[#0A66C2]/40"
+                      className="px-2 py-1 rounded-md bg-white hover:bg-[#0A66C2]/10 text-stone-700 hover:text-[#0A66C2] transition-colors flex items-center gap-1 border border-stone-200 hover:border-[#0A66C2]/40 shadow-2xs"
                     >
                       <Linkedin className="w-3 h-3 text-[#0A66C2]" />
                       <span>LinkedIn</span>
@@ -1168,9 +1187,9 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                       href="https://x.com/gharkasathi?s=11" 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="px-2 py-1 rounded-md bg-stone-800/90 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors flex items-center gap-1 border border-stone-800 hover:border-stone-600"
+                      className="px-2 py-1 rounded-md bg-white hover:bg-stone-200 text-stone-700 hover:text-stone-900 transition-colors flex items-center gap-1 border border-stone-200 hover:border-stone-400 shadow-2xs"
                     >
-                      <Twitter className="w-3 h-3 text-stone-300" />
+                      <Twitter className="w-3 h-3 text-stone-700" />
                       <span>X</span>
                     </a>
                   </div>
@@ -1179,18 +1198,31 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
             </div>
           </div>
 
-          <div className="pt-6 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-500">
+          <div className="pt-6 border-t border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
             <p>&copy; {new Date().getFullYear()} Gharkasathi Innoventure Private Limited. All rights reserved.</p>
-            <div className="flex items-center gap-4">
-              <span>Raipur &bull; Bhilai &bull; Durg &bull; Bilaspur</span>
+            
+            {/* Last Down Bar: DIY Quick Access & Locations & Admin */}
+            <div className="flex items-center flex-wrap gap-3">
+              <button
+                onClick={openDiyGuides}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                title="Free DIY home troubleshooting guides, tool lists & maintenance safety"
+              >
+                <Wrench className="w-3.5 h-3.5 text-amber-600" />
+                <span>Do It On Your Own (DIY)</span>
+              </button>
+
+              <span className="hidden sm:inline text-stone-300">|</span>
+              <span className="text-stone-600 font-medium">Raipur &bull; Bhilai &bull; Durg &bull; Bilaspur</span>
+              
               {onOpenAdmin && (
                 <button
                   onClick={onOpenAdmin}
-                  className="text-stone-500 hover:text-stone-300 transition-colors cursor-pointer text-[11px] flex items-center gap-1.5"
+                  className="text-stone-500 hover:text-red-600 transition-colors cursor-pointer text-[11px] flex items-center gap-1.5 ml-1"
                   title="Authorized Staff & Administration Portal"
                 >
-                  <Lock className="w-3 h-3 text-stone-500" />
-                  <span>Admin &amp; Staff Login</span>
+                  <Lock className="w-3 h-3 text-stone-400" />
+                  <span>Admin Login</span>
                 </button>
               )}
             </div>

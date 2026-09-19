@@ -319,48 +319,48 @@ export const ConstructionBoqCalculator: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Live BOQ Breakdown & Instant Export */}
-          <div className="lg:col-span-5 bg-stone-900 text-white p-6 sm:p-8 flex flex-col justify-between space-y-6">
+          {/* Right Column: Live BOQ Breakdown & Instant Export in Greyish / Red-White Theme */}
+          <div className="lg:col-span-5 bg-gradient-to-b from-stone-50 via-white to-red-50/30 text-stone-900 p-6 sm:p-8 flex flex-col justify-between space-y-6 border-t lg:border-t-0 lg:border-l border-stone-200">
             <div>
               {/* Card Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-stone-800">
+              <div className="flex items-center justify-between pb-3 border-b border-stone-200">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-stone-300">
+                  <span className="text-xs font-black uppercase tracking-wider text-red-700">
                     Engineering BOQ Summary
                   </span>
                 </div>
-                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
+                <span className="text-[10px] font-bold font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                   Fixed Rate Lock
                 </span>
               </div>
 
               {/* Total Area & Investment */}
-              <div className="mt-4 p-4 bg-stone-800/80 rounded-2xl border border-stone-700/60 space-y-2">
-                <div className="flex items-center justify-between text-xs text-stone-400">
+              <div className="mt-4 p-4 bg-white rounded-2xl border-2 border-red-100 shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-xs text-stone-600">
                   <span>Total Built-Up Area:</span>
-                  <span className="font-mono font-bold text-white text-sm">
+                  <span className="font-mono font-bold text-stone-900 text-sm">
                     {totalBuiltupArea.toLocaleString('en-IN')} Sq.Ft
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-stone-400">
+                <div className="flex items-center justify-between text-xs text-stone-600">
                   <span>Base Package Rate:</span>
-                  <span className="font-mono font-bold text-white">
+                  <span className="font-mono font-bold text-stone-900">
                     ₹{pkg.rate} / Sq.Ft
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-stone-400">
+                <div className="flex items-center justify-between text-xs text-stone-600">
                   <span>Estimated Completion:</span>
-                  <span className="font-bold text-amber-300">
+                  <span className="font-bold text-amber-700">
                     {timelineMonths}
                   </span>
                 </div>
 
-                <div className="pt-3 border-t border-stone-700">
-                  <span className="text-[11px] text-stone-400 block">Total Turnkey Budget:</span>
-                  <span className="text-3xl font-black text-emerald-400 font-mono tracking-tight">
+                <div className="pt-3 border-t border-stone-100">
+                  <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider block">Total Turnkey Budget:</span>
+                  <span className="text-3xl font-black text-red-600 font-mono tracking-tight">
                     ₹{totalCost.toLocaleString('en-IN')}
                   </span>
-                  <span className="text-[10px] text-stone-400 block mt-0.5">
+                  <span className="text-[11px] text-stone-500 font-medium block mt-0.5">
                     (₹{(totalCost / 100000).toFixed(2)} Lakhs All-Inclusive)
                   </span>
                 </div>
@@ -368,39 +368,39 @@ export const ConstructionBoqCalculator: React.FC = () => {
 
               {/* Material Quantification BOQ */}
               <div className="mt-4 space-y-2">
-                <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-stone-600 uppercase tracking-wider block">
                   Key Material Quantities (Estimated):
                 </span>
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2.5 bg-stone-800/50 rounded-xl border border-stone-700/40">
-                    <span className="text-stone-400 block text-[10px]">Cement Bags</span>
-                    <span className="font-bold text-white font-mono">{cementBags.toLocaleString()} Bags</span>
+                  <div className="p-2.5 bg-white rounded-xl border border-stone-200 shadow-2xs">
+                    <span className="text-stone-500 block text-[10px] font-medium">Cement Bags</span>
+                    <span className="font-bold text-stone-900 font-mono">{cementBags.toLocaleString()} Bags</span>
                   </div>
-                  <div className="p-2.5 bg-stone-800/50 rounded-xl border border-stone-700/40">
-                    <span className="text-stone-400 block text-[10px]">TMT Steel (Fe550D)</span>
-                    <span className="font-bold text-white font-mono">{steelTonnes} Metric Ton</span>
+                  <div className="p-2.5 bg-white rounded-xl border border-stone-200 shadow-2xs">
+                    <span className="text-stone-500 block text-[10px] font-medium">TMT Steel (Fe550D)</span>
+                    <span className="font-bold text-stone-900 font-mono">{steelTonnes} Metric Ton</span>
                   </div>
-                  <div className="p-2.5 bg-stone-800/50 rounded-xl border border-stone-700/40">
-                    <span className="text-stone-400 block text-[10px]">Bricks / Blocks</span>
-                    <span className="font-bold text-white font-mono">{bricksCount.toLocaleString()} Nos</span>
+                  <div className="p-2.5 bg-white rounded-xl border border-stone-200 shadow-2xs">
+                    <span className="text-stone-500 block text-[10px] font-medium">Bricks / Blocks</span>
+                    <span className="font-bold text-stone-900 font-mono">{bricksCount.toLocaleString()} Nos</span>
                   </div>
-                  <div className="p-2.5 bg-stone-800/50 rounded-xl border border-stone-700/40">
-                    <span className="text-stone-400 block text-[10px]">Tiles & Dados</span>
-                    <span className="font-bold text-white font-mono">{tileSqFt.toLocaleString()} Sq.Ft</span>
+                  <div className="p-2.5 bg-white rounded-xl border border-stone-200 shadow-2xs">
+                    <span className="text-stone-500 block text-[10px] font-medium">Tiles & Dados</span>
+                    <span className="font-bold text-stone-900 font-mono">{tileSqFt.toLocaleString()} Sq.Ft</span>
                   </div>
                 </div>
               </div>
 
               {/* Milestone Schedule */}
-              <div className="mt-4 p-3 bg-stone-800/40 rounded-xl border border-stone-700/30 text-[11px] space-y-1.5 text-stone-300">
-                <span className="font-bold text-stone-200 block text-xs">Milestone Payment Schedule:</span>
-                <div className="flex justify-between"><span>1. Plinth / Foundation:</span> <span className="font-mono text-white">15%</span></div>
-                <div className="flex justify-between"><span>2. Ground Floor Slab:</span> <span className="font-mono text-white">20%</span></div>
-                <div className="flex justify-between"><span>3. Upper Slab & Roof:</span> <span className="font-mono text-white">20%</span></div>
-                <div className="flex justify-between"><span>4. Brickwork & Plaster:</span> <span className="font-mono text-white">15%</span></div>
-                <div className="flex justify-between"><span>5. Flooring & Finishing:</span> <span className="font-mono text-white">15%</span></div>
-                <div className="flex justify-between"><span>6. Griha Pravesh & Handover:</span> <span className="font-mono text-emerald-400 font-bold">15%</span></div>
+              <div className="mt-4 p-3 bg-stone-100/80 rounded-xl border border-stone-200 text-[11px] space-y-1.5 text-stone-700">
+                <span className="font-bold text-stone-900 block text-xs">Milestone Payment Schedule:</span>
+                <div className="flex justify-between"><span>1. Plinth / Foundation:</span> <span className="font-mono text-stone-900 font-semibold">15%</span></div>
+                <div className="flex justify-between"><span>2. Ground Floor Slab:</span> <span className="font-mono text-stone-900 font-semibold">20%</span></div>
+                <div className="flex justify-between"><span>3. Upper Slab & Roof:</span> <span className="font-mono text-stone-900 font-semibold">20%</span></div>
+                <div className="flex justify-between"><span>4. Brickwork & Plaster:</span> <span className="font-mono text-stone-900 font-semibold">15%</span></div>
+                <div className="flex justify-between"><span>5. Flooring & Finishing:</span> <span className="font-mono text-stone-900 font-semibold">15%</span></div>
+                <div className="flex justify-between"><span>6. Griha Pravesh & Handover:</span> <span className="font-mono text-emerald-700 font-bold">15%</span></div>
               </div>
             </div>
 
@@ -417,7 +417,7 @@ export const ConstructionBoqCalculator: React.FC = () => {
               </a>
 
               {bookingSubmitted ? (
-                <div className="p-3 bg-emerald-950/80 border border-emerald-700 rounded-xl text-xs text-emerald-300 text-center">
+                <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-xl text-xs text-emerald-800 text-center font-medium">
                   ✅ Consultation requested! Chief Civil Engineer will call {leadPhone} within 30 mins.
                 </div>
               ) : (
@@ -429,11 +429,11 @@ export const ConstructionBoqCalculator: React.FC = () => {
                     value={leadPhone}
                     onChange={(e) => setLeadPhone(e.target.value)}
                     placeholder="Enter 10-digit mobile number"
-                    className="flex-1 px-3 py-2 bg-stone-800 border border-stone-700 rounded-xl text-xs text-white placeholder-stone-400 focus:outline-hidden focus:border-red-500"
+                    className="flex-1 px-3 py-2 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 placeholder-stone-400 focus:outline-hidden focus:border-red-500"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 shadow-xs"
                   >
                     Lock Estimate
                   </button>

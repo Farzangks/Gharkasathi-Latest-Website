@@ -247,23 +247,24 @@ export const CareAndMaintenanceSection: React.FC<CareAndMaintenanceSectionProps>
           </div>
         </div>
 
-        {/* Powerful "Build Your Own Plan" Interactive Callout */}
-        <div className="bg-stone-900 text-white rounded-3xl p-8 sm:p-12 relative overflow-hidden shadow-xl border border-stone-800">
+        {/* Refined "Build Your Own Plan" Callout with Greyish/Red-White Theme */}
+        <div className="bg-gradient-to-br from-stone-50 via-red-50/40 to-stone-100 text-stone-900 rounded-3xl p-8 sm:p-12 relative overflow-hidden shadow-md border-2 border-red-200/80">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 max-w-3xl space-y-4">
-            <span className="text-xs font-bold text-red-400 uppercase tracking-wider block">
+            <span className="text-xs font-black text-red-600 uppercase tracking-wider block">
               Dynamic Proposal &amp; Contract Engine
             </span>
-            <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            <h3 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
               Build Your Own Maintenance Plan
             </h3>
-            <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
+            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
               Configure different visit frequencies for each category — e.g. monthly pest control, quarterly deep cleaning, and fortnightly electrical inspections. Select your square footage, emergency support and response speed to generate a compliant quotation and digital contract instantly.
             </p>
 
             <div className="pt-4 flex flex-wrap items-center gap-4">
               <button
                 onClick={() => handleOpen('builder', 'residential')}
-                className="px-6 py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-lg shadow-red-600/30 flex items-center gap-2 cursor-pointer transition-all hover:scale-102"
+                className="px-6 py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-md shadow-red-600/25 flex items-center gap-2 cursor-pointer transition-all hover:scale-102"
               >
                 <Sliders className="w-4 h-4" />
                 <span>Launch Custom Plan Builder</span>
@@ -272,9 +273,9 @@ export const CareAndMaintenanceSection: React.FC<CareAndMaintenanceSectionProps>
 
               <button
                 onClick={() => handleOpen('dashboard')}
-                className="px-5 py-3.5 rounded-2xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-xs border border-stone-700 flex items-center gap-2 cursor-pointer transition-colors"
+                className="px-5 py-3.5 rounded-2xl bg-white hover:bg-stone-50 text-stone-800 font-bold text-xs border border-stone-300 shadow-2xs flex items-center gap-2 cursor-pointer transition-colors"
               >
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
                 <span>My Active Contracts &amp; Raise Request</span>
               </button>
             </div>
