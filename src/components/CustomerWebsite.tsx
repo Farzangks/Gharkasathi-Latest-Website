@@ -49,6 +49,7 @@ import {
 import { AUTHENTIC_PROPERTIES, AuthenticRealEstate } from '../data/teamImages';
 import { CartItem } from '../data/cleaningCatalog';
 import { ServiceOptionsModal, ServiceWithOptions } from './ServiceOptionsModal';
+import { ServiceCategoryPage } from './ServiceCategoryPage';
 import { CartDrawer } from './CartDrawer';
 import { ConstructionBoqCalculator } from './ConstructionBoqCalculator';
 import { ScheduleSiteVisitModal } from './ScheduleSiteVisitModal';
@@ -579,184 +580,24 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
         </div>
       </section>
 
-      {/* 5. OUR SERVICES: The 9 Requested Categories Grid & Filterable Listing */}
-      <section id="our-services-section" className="py-10 sm:py-14 bg-[#F7F8FA]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          {/* Section Header */}
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">
-              Standardized Rate Cards &bull; Police Verified
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
-              Our Services
-            </h2>
-            <p className="text-xs sm:text-sm text-stone-600">
-              Select any category to view transparent rates, customize service options &amp; book instant doorstep dispatch.
-            </p>
-          </div>
-
-          {/* 9 Category Quick Selection Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-2.5 sm:gap-3">
-            {CORE_SERVICE_CATEGORIES.map((cat) => {
-              const isSelected = activeCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-2 cursor-pointer select-none ${
-                    isSelected
-                      ? 'bg-red-600 text-white border-red-600 shadow-md shadow-red-600/20 scale-102'
-                      : 'bg-white hover:bg-stone-50 border-stone-200/80 text-stone-800'
-                  }`}
-                >
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                    isSelected ? 'bg-white/20 text-white' : 'bg-red-50 text-red-600'
-                  }`}>
-                    {getCategoryIcon(cat.icon)}
-                  </div>
-                  <span className="text-[11px] font-bold leading-tight line-clamp-1">
-                    {cat.name}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Filter Chips Bar */}
-          <div className="flex items-center justify-between gap-3 border-b border-stone-200 pb-3 overflow-x-auto">
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => setActiveCategory('all')}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  activeCategory === 'all'
-                    ? 'bg-stone-900 text-white'
-                    : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-100'
-                }`}
-              >
-                All Services ({CATALOG_SERVICES.length})
-              </button>
-              {CORE_SERVICE_CATEGORIES.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                    activeCategory === cat.id
-                      ? 'bg-red-600 text-white'
-                      : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-100'
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
-            </div>
-
-            <span className="text-xs text-stone-500 font-medium whitespace-nowrap hidden sm:inline">
-              Showing {filteredServices.length} verified services
-            </span>
-          </div>
-
-          {/* Services Cards Listing */}
-          {filteredServices.length === 0 ? (
-            <div className="bg-white rounded-3xl p-10 text-center border border-stone-200 max-w-md mx-auto space-y-3">
-              <div className="w-12 h-12 rounded-full bg-stone-100 text-stone-400 mx-auto flex items-center justify-center">
-                <Search className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-bold text-stone-900">No Services Found</h3>
-              <p className="text-xs text-stone-500">
-                We couldn't find any services matching "{searchQuery}". Try selecting another category or clear your search.
-              </p>
-              <button
-                onClick={() => { setSearchQuery(''); setActiveCategory('all'); }}
-                className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-all cursor-pointer"
-              >
-                Reset Filters
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredServices.map((service) => (
-                <div
-                  key={service.id}
-                  className="bg-white rounded-2xl border border-stone-200/90 overflow-hidden shadow-xs hover:shadow-md hover:border-red-600/30 transition-all flex flex-col justify-between"
-                >
-                  <div>
-                    {/* Image & Badge */}
-                    <div className="relative aspect-16/9 bg-stone-100 overflow-hidden">
-                      <img
-                        src={service.imageUrl}
-                        alt={service.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                      />
-                      <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                        <span className="px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-xs text-[10px] font-black text-stone-800 shadow-xs uppercase tracking-wider">
-                          {service.categoryName}
-                        </span>
-                        {service.badge && (
-                          <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black shadow-xs">
-                            {service.badge}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/75 text-white text-[10px] font-mono flex items-center gap-1 backdrop-blur-xs">
-                        <Clock className="w-3 h-3 text-red-400" />
-                        <span>{service.duration}</span>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-4 sm:p-5 space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-base font-bold text-stone-900 line-clamp-1">
-                          {service.name}
-                        </h3>
-                        <div className="flex items-center gap-1 text-xs font-black text-stone-800 bg-amber-50 border border-amber-200/80 px-1.5 py-0.5 rounded-md shrink-0">
-                          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                          <span>{service.rating}</span>
-                        </div>
-                      </div>
-
-                      <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">
-                        {service.description}
-                      </p>
-
-                      {/* Options Preview Pill */}
-                      {service.options && service.options.length > 0 && (
-                        <div className="pt-1 flex items-center gap-1.5 text-[11px] text-stone-500">
-                          <SlidersHorizontal className="w-3 h-3 text-red-600 shrink-0" />
-                          <span className="truncate">
-                            {service.options.length} options available ({service.options[0].name}...)
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Pricing & Booking CTA */}
-                  <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-2 border-t border-stone-100 flex items-center justify-between gap-3">
-                    <div>
-                      <span className="text-[10px] text-stone-400 font-semibold block uppercase">
-                        Starting At
-                      </span>
-                      <span className="text-base font-black text-stone-900">
-                        {service.priceDisplay}
-                      </span>
-                    </div>
-
-                    <button
-                      onClick={() => setSelectedServiceForOptions(service)}
-                      className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-xs hover:shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95"
-                    >
-                      <span>Book Now</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+      {/* 5. OUR SERVICES: Universal Data-Driven Service Category Experience */}
+      <section id="our-services-section" className="border-t border-stone-200">
+        <ServiceCategoryPage
+          categorySlug={activeCategory === 'all' ? 'electrician' : activeCategory}
+          cart={cart}
+          onAddToCart={handleAddToCart}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemoveFromCart={handleRemoveFromCart}
+          onOpenCartDrawer={() => setIsCartDrawerOpen(true)}
+          onSelectCategory={(slug) => {
+            setActiveCategory(slug);
+            const el = document.getElementById('our-services-section');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }}
+          onBackToHome={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </section>
 
       {/* 5.5 CARE & MAINTENANCE (HMC, QMC, AMC & CUSTOM BUILDER) */}

@@ -2083,13 +2083,15 @@ export const LiveAdminPanel: React.FC = () => {
                     onChange={(e) => setNewServiceCategory(e.target.value)}
                     className="w-full border border-stone-300 rounded-lg px-3 py-2 text-xs text-stone-900 focus:outline-none focus:border-stone-900"
                   >
-                    <option>Appliance</option>
-                    <option>Cleaning</option>
-                    <option>Electrical</option>
-                    <option>Plumbing</option>
-                    <option>Carpentry</option>
-                    <option>Gardening</option>
-                    <option>Painting</option>
+                    <option value="Electrical">Electrician</option>
+                    <option value="Plumbing">Plumber</option>
+                    <option value="Carpentry">Carpenter</option>
+                    <option value="Painting">Painting & Waterproofing</option>
+                    <option value="Cleaning">Cleaning & Disinfection</option>
+                    <option value="Appliance">Home Appliances</option>
+                    <option value="Pest Control">Pest Control</option>
+                    <option value="Gardening">Gardening & Landscaping</option>
+                    <option value="Movers & Packers">Movers & Packers</option>
                   </select>
                 </div>
 
