@@ -13,8 +13,15 @@ import {
   FileText, 
   Sparkles,
   ChevronRight,
-  Info
+  Info,
+  X
 } from 'lucide-react';
+
+export interface ConstructionBoqCalculatorProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+  selectedCity?: string;
+}
 
 interface BoqPackage {
   id: string;
@@ -80,15 +87,23 @@ const PACKAGES: Record<string, BoqPackage> = {
   }
 };
 
-export const ConstructionBoqCalculator: React.FC = () => {
+export const ConstructionBoqCalculator: React.FC<ConstructionBoqCalculatorProps> = ({
+  isOpen = true,
+  onClose,
+  selectedCity = 'Raipur'
+}) => {
   const [selectedPackageKey, setSelectedPackageKey] = useState<string>('standard');
   const [plotArea, setPlotArea] = useState<number>(1500);
   const [floorType, setFloorType] = useState<string>('g1'); // 'g', 'g1', 'g2', 'g3'
   const [groundCoverage, setGroundCoverage] = useState<number>(80); // percentage
   const [leadName, setLeadName] = useState('');
   const [leadPhone, setLeadPhone] = useState('');
-  const [leadCity, setLeadCity] = useState('Raipur');
+  const [leadCity, setLeadCity] = useState(selectedCity);
   const [bookingSubmitted, setBookingSubmitted] = useState(false);
+
+  // If used as a modal and closed, return null
+  if (!isOpen) return null;
+
 
   // Multiplier for floors
   const floorMultipliers: Record<string, { label: string; count: number; name: string }> = {
@@ -140,25 +155,36 @@ export const ConstructionBoqCalculator: React.FC = () => {
     setBookingSubmitted(true);
   };
 
-  return (
-    <section id="turnkey-boq-calculator" className="py-12 bg-stone-100 border-b border-stone-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header Title */}
-        <div className="max-w-3xl mb-8">
+  const content = (
+    <div className="bg-white rounded-3xl border border-stone-200 shadow-xl overflow-hidden">
+      {/* Modal / Section Header */}
+      <div className="p-6 sm:p-8 bg-stone-50 border-b border-stone-200 flex items-start justify-between gap-4">
+        <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-red-700 text-xs font-bold mb-2">
             <Calculator className="w-3.5 h-3.5" />
-            <span>Interactive Civil Engineering Cost Engine & Bill of Quantities (BOQ)</span>
+            <span>Interactive Civil Engineering Cost Engine &amp; Bill of Quantities (BOQ)</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-stone-900 tracking-tight">
-            Calculate Exact Plot Construction Cost
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-stone-900 tracking-tight">
+            Calculate Exact Plot Construction Cost in {leadCity}
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 mt-1 leading-relaxed">
             Transparent pricing per square foot with itemized cement, steel, bricks, and milestone schedules. Backed by Gharkasathi structural warranty.
           </p>
         </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-stone-200/80 hover:bg-red-600 hover:text-white text-stone-600 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            title="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
+      </div>
 
-        {/* Main 2-Column Calculator Box */}
-        <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+      {/* Main 2-Column Calculator Box */}
+      <div className="overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+
           {/* Left Column: Inputs & Package Selector */}
           <div className="lg:col-span-7 p-6 sm:p-8 space-y-6">
             {/* Step 1: Select Package */}
@@ -443,6 +469,24 @@ export const ConstructionBoqCalculator: React.FC = () => {
           </div>
         </div>
       </div>
+  );
+
+  if (onClose) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in overflow-y-auto">
+        <div className="w-full max-w-6xl max-h-[92vh] overflow-y-auto rounded-3xl">
+          {content}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <section id="turnkey-boq-calculator" className="py-12 bg-stone-100 border-b border-stone-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {content}
+      </div>
     </section>
   );
 };
+

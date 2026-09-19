@@ -307,3 +307,18 @@ export interface PlatformTaxConfig {
   taxInclusivePricing: boolean;
   updatedAt: string;
 }
+
+export interface CouponOffer {
+  id: string;
+  code: string;
+  title: string;
+  description: string;
+  discountType: 'percentage' | 'flat';
+  discountValue: number;
+  minOrderValue: number;
+  maxDiscount?: number;
+  isActive: boolean;
+  validTill?: string;
+  categoryRestriction?: string; // 'all' or category slug
+}
+

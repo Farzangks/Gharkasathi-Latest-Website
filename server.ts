@@ -2565,7 +2565,183 @@ Keep replies concise, crisp, professional, and friendly. Use bold text and bulle
     res.json({ success: true, pricingRules: maintenancePricingRulesStore });
   });
 
+  // 9. Coupons & Promotional Offers System
+  interface CouponRecord {
+    id: string;
+    code: string;
+    title: string;
+    description: string;
+    discountType: 'percentage' | 'flat';
+    discountValue: number;
+    minOrderValue: number;
+    maxDiscount?: number;
+    isActive: boolean;
+    validTill?: string;
+    categoryRestriction?: string;
+  }
+
+  let couponsStore: CouponRecord[] = [
+    {
+      id: 'CPN-WELCOME100',
+      code: 'GHARKASATHI100',
+      title: 'Flat ₹100 Off on First Service',
+      description: 'Applicable on bookings above ₹499 across all verified home service categories.',
+      discountType: 'flat',
+      discountValue: 100,
+      minOrderValue: 499,
+      isActive: true,
+      validTill: '2026-12-31',
+      categoryRestriction: 'all'
+    },
+    {
+      id: 'CPN-FESTIVE20',
+      code: 'SATHI20',
+      title: '20% Mega Savings Discount',
+      description: 'Get 20% off up to ₹250 on deep cleaning, plumbing and electrical repairs.',
+      discountType: 'percentage',
+      discountValue: 20,
+      minOrderValue: 399,
+      maxDiscount: 250,
+      isActive: true,
+      validTill: '2026-12-31',
+      categoryRestriction: 'all'
+    },
+    {
+      id: 'CPN-CLEANING150',
+      code: 'CLEAN150',
+      title: '₹150 Off Deep Home & Sofa Cleaning',
+      description: 'Special coupon for sofa shampooing, bathroom cleaning & full home sanitization.',
+      discountType: 'flat',
+      discountValue: 150,
+      minOrderValue: 699,
+      isActive: true,
+      validTill: '2026-12-31',
+      categoryRestriction: 'cleaning'
+    }
+  ];
+
+  // List all coupons (public for customer website / cart)
+  app.get('/api/coupons', (req, res) => {
+    res.json({
+      success: true,
+      coupons: couponsStore
+    });
+  });
+
+  // Validate and apply coupon in cart
+  app.post('/api/coupons/apply', (req, res) => {
+    const { code, orderAmount, categorySlug } = req.body;
+    if (!code) {
+      return res.status(400).json({ success: false, error: 'Coupon code is required' });
+    }
+    const cleanCode = code.trim().toUpperCase();
+    const coupon = couponsStore.find(c => c.code.toUpperCase() === cleanCode);
+
+    if (!coupon) {
+      return res.status(404).json({ success: false, error: 'Invalid coupon code. Please check and retry.' });
+    }
+
+    if (!coupon.isActive) {
+      return res.status(400).json({ success: false, error: 'This coupon offer has expired or is deactivated.' });
+    }
+
+    const cartTotal = Number(orderAmount) || 0;
+    if (cartTotal < coupon.minOrderValue) {
+      return res.status(400).json({ 
+        success: false, 
+        error: `Minimum order value for code ${coupon.code} is ₹${coupon.minOrderValue}. Add more items to qualify.` 
+      });
+    }
+
+    if (coupon.categoryRestriction && coupon.categoryRestriction !== 'all' && categorySlug) {
+      if (coupon.categoryRestriction.toLowerCase() !== categorySlug.toLowerCase()) {
+        return res.status(400).json({
+          success: false,
+          error: `This coupon is exclusively valid for ${coupon.categoryRestriction} services.`
+        });
+      }
+    }
+
+    let calculatedDiscount = 0;
+    if (coupon.discountType === 'flat') {
+      calculatedDiscount = coupon.discountValue;
+    } else {
+      calculatedDiscount = Math.round((cartTotal * coupon.discountValue) / 100);
+      if (coupon.maxDiscount && calculatedDiscount > coupon.maxDiscount) {
+        calculatedDiscount = coupon.maxDiscount;
+      }
+    }
+
+    calculatedDiscount = Math.min(calculatedDiscount, cartTotal);
+
+    res.json({
+      success: true,
+      message: `Coupon '${coupon.code}' applied successfully! Saved ₹${calculatedDiscount}`,
+      coupon: {
+        id: coupon.id,
+        code: coupon.code,
+        title: coupon.title,
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue,
+        calculatedDiscount
+      }
+    });
+  });
+
+  // Admin: Create Coupon
+  app.post('/api/admin/coupons', (req, res) => {
+    const { code, title, description, discountType, discountValue, minOrderValue, maxDiscount, categoryRestriction, validTill } = req.body;
+    if (!code || !title || !discountValue) {
+      return res.status(400).json({ success: false, error: 'Code, title, and discount value are required' });
+    }
+
+    const cleanCode = code.trim().toUpperCase();
+    if (couponsStore.some(c => c.code.toUpperCase() === cleanCode)) {
+      return res.status(400).json({ success: false, error: `Coupon code '${cleanCode}' already exists.` });
+    }
+
+    const newCoupon: CouponRecord = {
+      id: `CPN-${Date.now().toString().slice(-6)}`,
+      code: cleanCode,
+      title: title.trim(),
+      description: description ? description.trim() : `Special discount code ${cleanCode}`,
+      discountType: discountType === 'flat' ? 'flat' : 'percentage',
+      discountValue: Number(discountValue),
+      minOrderValue: Number(minOrderValue) || 0,
+      maxDiscount: maxDiscount ? Number(maxDiscount) : undefined,
+      isActive: true,
+      validTill: validTill || '2026-12-31',
+      categoryRestriction: categoryRestriction || 'all'
+    };
+
+    couponsStore.unshift(newCoupon);
+    res.status(201).json({ success: true, message: `Coupon '${cleanCode}' created successfully!`, coupon: newCoupon });
+  });
+
+  // Admin: Toggle Coupon Active Status
+  app.patch('/api/admin/coupons/:id/toggle', (req, res) => {
+    const { id } = req.params;
+    const coupon = couponsStore.find(c => c.id === id);
+    if (!coupon) {
+      return res.status(404).json({ success: false, error: 'Coupon not found' });
+    }
+    coupon.isActive = !coupon.isActive;
+    res.json({ success: true, message: `Coupon ${coupon.code} is now ${coupon.isActive ? 'Active' : 'Deactivated'}`, coupon });
+  });
+
+  // Admin: Delete Coupon
+  app.delete('/api/admin/coupons/:id', (req, res) => {
+    const { id } = req.params;
+    const initialLen = couponsStore.length;
+    couponsStore = couponsStore.filter(c => c.id !== id);
+    if (couponsStore.length === initialLen) {
+      return res.status(404).json({ success: false, error: 'Coupon not found' });
+    }
+    res.json({ success: true, message: 'Coupon deleted successfully' });
+  });
+
   // Static assets from public folder
+
   app.use(express.static(path.join(process.cwd(), 'public')));
 
   // Vite middleware for development

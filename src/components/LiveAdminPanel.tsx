@@ -36,7 +36,8 @@ import {
   Smartphone,
   UserCheck,
   UserPlus,
-  Award
+  Award,
+  Bot
 } from 'lucide-react';
 import { 
   LiveBooking, 
@@ -53,10 +54,14 @@ import { PartnerAppCompanion } from './PartnerAppCompanion';
 import { FlutterConnectHub } from './FlutterConnectHub';
 import { AdminAcademyManager } from './AdminAcademyManager';
 import { AdminCareMaintenancePanel } from './maintenance/AdminCareMaintenancePanel';
+import { AdminCouponManager } from './AdminCouponManager';
+import { SathiAiAssistPanel } from './SathiAiAssistPanel';
 
 export const LiveAdminPanel: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<
     'bookings' | 
+    'sathi_ai' |
+    'coupons' |
     'care_maintenance' |
     'partners' | 
     'academy' |
@@ -510,29 +515,48 @@ export const LiveAdminPanel: React.FC = () => {
 
   return (
     <div id="live-admin-panel" className="space-y-6">
-      {/* Admin Panel Header & Status */}
-      <div className="bg-white rounded-xl border border-stone-200 shadow-xs p-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-lg font-bold text-stone-900">
-              Ghar Ka Sathi Executive Admin Dashboard
-            </h3>
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Live API Connected: https://gharkasathi.com
-            </span>
+      {/* Admin Panel Header & Status (Branded Red & White with Sathi AI Assist) */}
+      <div className="bg-white rounded-2xl border-2 border-red-600/20 shadow-sm p-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center font-bold shadow-sm shadow-red-600/30">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-black text-stone-900 tracking-tight">
+                  <span className="text-red-600">Ghar Ka Sathi</span> Executive Admin Portal
+                </h3>
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
+                  <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                  Live API: gharkasathi.com
+                </span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-black px-2.5 py-0.5 rounded-full bg-red-600 text-white shadow-2xs">
+                  <Sparkles className="w-3 h-3 text-white" />
+                  Sathi AI Assist Active
+                </span>
+              </div>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Official Red &amp; White Command Center &bull; Customer Bookings, 9 Services, Partner Fleet &amp; Dynamic Coupons.
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-stone-500 mt-1">
-            Complete management center for In-Home Services, Customer Bookings, Property Inquiries, Push Notifications, and Partner Fleet.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setActiveSubTab('sathi_ai')}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold rounded-xl transition-all cursor-pointer shadow-2xs"
+          >
+            <Bot className="w-3.5 h-3.5 text-red-600" />
+            Launch Sathi AI Assist
+          </button>
+
+          <button
             id="refresh-admin-data"
             onClick={fetchData}
             disabled={loading}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-stone-300 hover:bg-stone-50 text-stone-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-stone-300 hover:bg-stone-50 text-stone-700 text-xs font-semibold rounded-xl transition-colors cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             Sync Now
@@ -541,7 +565,7 @@ export const LiveAdminPanel: React.FC = () => {
           <button
             id="new-booking-btn"
             onClick={() => setShowNewBooking(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Create Booking
@@ -609,18 +633,44 @@ export const LiveAdminPanel: React.FC = () => {
         </div>
       )}
 
-      {/* Navigation Sub-Tabs */}
+      {/* Navigation Sub-Tabs (With Sathi AI and Coupons tabs) */}
       <div className="flex items-center gap-2 border-b border-stone-200 overflow-x-auto pb-px">
         <button
           onClick={() => setActiveSubTab('bookings')}
           className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
             activeSubTab === 'bookings'
-              ? 'border-emerald-600 text-emerald-800 bg-white rounded-t-lg'
+              ? 'border-red-600 text-red-700 bg-white rounded-t-lg'
               : 'border-transparent text-stone-600 hover:text-stone-900'
           }`}
         >
-          <Clock className="w-3.5 h-3.5 text-emerald-600" />
+          <Clock className="w-3.5 h-3.5 text-red-600" />
           Customer Bookings ({bookings.length})
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('sathi_ai')}
+          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeSubTab === 'sathi_ai'
+              ? 'border-red-600 text-red-700 bg-red-50/50 rounded-t-lg font-black'
+              : 'border-transparent text-stone-600 hover:text-red-700'
+          }`}
+        >
+          <Bot className="w-3.5 h-3.5 text-red-600" />
+          Sathi AI Assist
+          <span className="px-1.5 py-0.2 rounded text-[9px] bg-red-600 text-white font-extrabold shadow-2xs">Live</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('coupons')}
+          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeSubTab === 'coupons'
+              ? 'border-red-600 text-red-700 bg-white rounded-t-lg'
+              : 'border-transparent text-stone-600 hover:text-stone-900'
+          }`}
+        >
+          <Tag className="w-3.5 h-3.5 text-red-600" />
+          Coupons &amp; Offers
+          <span className="px-1.5 py-0.2 rounded text-[9px] bg-red-100 text-red-700 font-extrabold">Checkout</span>
         </button>
 
         <button
@@ -773,6 +823,24 @@ export const LiveAdminPanel: React.FC = () => {
           <span className="px-1.5 py-0.2 rounded text-[9px] bg-red-100 text-red-800 font-extrabold">Protected</span>
         </button>
       </div>
+
+      {/* ==================================================== */}
+      {/* SUB-TAB: SATHI AI ASSIST & OPERATIONS CO-PILOT       */}
+      {/* ==================================================== */}
+      {activeSubTab === 'sathi_ai' && (
+        <SathiAiAssistPanel
+          metrics={metrics}
+          bookings={bookings}
+          providers={providers}
+        />
+      )}
+
+      {/* ==================================================== */}
+      {/* SUB-TAB: COUPONS & CHECKOUT OFFERS                   */}
+      {/* ==================================================== */}
+      {activeSubTab === 'coupons' && (
+        <AdminCouponManager />
+      )}
 
       {/* ==================================================== */}
       {/* SUB-TAB: CARE & MAINTENANCE (AMC/HMC/CONTRACTS)     */}

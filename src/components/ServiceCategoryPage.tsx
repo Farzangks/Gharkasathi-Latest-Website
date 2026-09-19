@@ -113,15 +113,15 @@ export const ServiceCategoryPage: React.FC<ServiceCategoryPageProps> = ({
   // Category Icon Resolver
   const renderCategoryIcon = (iconName: string) => {
     switch (iconName) {
-      case 'Zap': return <Zap className="w-4 h-4" />;
-      case 'Hammer': return <Hammer className="w-4 h-4" />;
-      case 'Wrench': return <Wrench className="w-4 h-4" />;
-      case 'Paintbrush': return <Paintbrush className="w-4 h-4" />;
-      case 'Refrigerator': return <Refrigerator className="w-4 h-4" />;
-      case 'Truck': return <Truck className="w-4 h-4" />;
-      case 'ShieldAlert': return <ShieldAlert className="w-4 h-4" />;
-      case 'Trees': return <Trees className="w-4 h-4" />;
-      default: return <Sparkles className="w-4 h-4" />;
+      case 'Zap': return <Zap className="w-5 h-5 shrink-0" />;
+      case 'Hammer': return <Hammer className="w-5 h-5 shrink-0" />;
+      case 'Wrench': return <Wrench className="w-5 h-5 shrink-0" />;
+      case 'Paintbrush': return <Paintbrush className="w-5 h-5 shrink-0" />;
+      case 'Refrigerator': return <Refrigerator className="w-5 h-5 shrink-0" />;
+      case 'Truck': return <Truck className="w-5 h-5 shrink-0" />;
+      case 'ShieldAlert': return <ShieldAlert className="w-5 h-5 shrink-0" />;
+      case 'Trees': return <Trees className="w-5 h-5 shrink-0" />;
+      default: return <Sparkles className="w-5 h-5 shrink-0" />;
     }
   };
 
@@ -210,11 +210,11 @@ export const ServiceCategoryPage: React.FC<ServiceCategoryPageProps> = ({
             </div>
 
             {/* Main Categories Explorer Strip (Upper side of Category Page) */}
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 shrink-0 hidden sm:inline-block">
+            <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-500 shrink-0 hidden sm:inline-block">
                 Explore Services:
               </span>
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 {Object.keys(ALL_SERVICE_CATEGORIES_REGISTRY).map((slug) => {
                   const item = ALL_SERVICE_CATEGORIES_REGISTRY[slug];
                   const isCurrent = slug === categorySlug;
@@ -222,10 +222,10 @@ export const ServiceCategoryPage: React.FC<ServiceCategoryPageProps> = ({
                     <button
                       key={slug}
                       onClick={() => onSelectCategory && onSelectCategory(slug)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs whitespace-nowrap ${
+                      className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-xs whitespace-nowrap ${
                         isCurrent
-                          ? 'bg-red-600 text-white font-bold shadow-xs'
-                          : 'bg-stone-100 hover:bg-stone-200/80 text-stone-700'
+                          ? 'bg-red-600 text-white font-black shadow-sm ring-2 ring-red-600/30'
+                          : 'bg-stone-100 hover:bg-stone-200/90 text-stone-800'
                       }`}
                     >
                       {renderCategoryIcon(item.iconName)}

@@ -426,6 +426,35 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
               }}
             />
           </div>
+
+          {/* Quick Primary Service Categories Strip */}
+          <div className="max-w-4xl mx-auto pt-4">
+            <div className="flex items-center justify-center flex-wrap gap-2.5 sm:gap-3">
+              {[
+                { id: 'carpenter', name: 'Carpenter', icon: Hammer },
+                { id: 'electrician', name: 'Electrician', icon: Zap },
+                { id: 'plumber', name: 'Plumber', icon: Wrench },
+                { id: 'painting', name: 'Painting', icon: Paintbrush },
+                { id: 'cleaning', name: 'Cleaning', icon: Sparkles },
+                { id: 'home-appliances', name: 'Appliances', icon: Refrigerator },
+                { id: 'movers-packers', name: 'Movers & Packers', icon: Truck },
+                { id: 'pest-control', name: 'Pest Control', icon: ShieldAlert },
+                { id: 'gardening', name: 'Gardening', icon: Trees },
+              ].map((cat) => {
+                const IconComp = cat.icon;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => scrollToServices(cat.id)}
+                    className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-red-50 hover:border-red-300 border border-stone-200/90 shadow-2xs hover:shadow-xs transition-all text-stone-800 hover:text-red-600 text-xs sm:text-sm font-bold cursor-pointer group"
+                  >
+                    <IconComp className="w-4 h-4 text-red-600 group-hover:scale-110 transition-transform" />
+                    <span>{cat.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -456,7 +485,6 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                   <Building2 className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-red-600 tracking-wider">Vertical 1</span>
                   <h3 className="text-lg font-black text-stone-900">Real Estate</h3>
                   <p className="text-xs font-semibold text-stone-500 mt-0.5">Find Your Next Property</p>
                 </div>
@@ -488,7 +516,6 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                   <Hammer className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-red-600 tracking-wider">Vertical 2</span>
                   <h3 className="text-lg font-black text-stone-900">Construction</h3>
                   <p className="text-xs font-semibold text-stone-500 mt-0.5">Build With Confidence</p>
                 </div>
@@ -520,7 +547,6 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                   <Sparkles className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-red-600 tracking-wider">Vertical 3</span>
                   <h3 className="text-lg font-black text-stone-900">Interior</h3>
                   <p className="text-xs font-semibold text-stone-500 mt-0.5">Design Your Space</p>
                 </div>
@@ -552,7 +578,6 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
                   <Wrench className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-red-600 tracking-wider">Vertical 4</span>
                   <h3 className="text-lg font-black text-stone-900">Home Services</h3>
                   <p className="text-xs font-semibold text-stone-500 mt-0.5">Professional Care For Your Home</p>
                 </div>
@@ -830,9 +855,6 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
               <p className="text-xs text-stone-600 leading-relaxed pt-1">
                 India's unified property ecosystem — from land purchase to turnkey construction, custom modular interiors, and 30-minute verified home maintenance.
               </p>
-              <div className="text-[11px] text-stone-500 font-mono pt-1">
-                CIN: U45200CT2026PTC018290
-              </div>
 
               {/* Official Social Media Channels */}
               <div className="pt-2">
@@ -884,33 +906,33 @@ export const CustomerWebsite: React.FC<CustomerWebsiteProps> = ({ onOpenAdmin })
               </div>
             </div>
 
-            {/* Column 2: The 4 Verticals */}
+            {/* Column 2: Explore Verticals */}
             <div className="space-y-3">
               <h4 className="text-xs font-black text-stone-900 uppercase tracking-wider">Explore Verticals</h4>
               <ul className="space-y-2 text-xs text-stone-600">
                 <li>
                   <button onClick={() => setIsRealEstateModalOpen(true)} className="hover:text-red-600 cursor-pointer">
-                    1. Real Estate (Buy, Sell, Plots)
+                    Real Estate (Buy, Sell, Plots)
                   </button>
                 </li>
                 <li>
                   <button onClick={() => setIsBoqModalOpen(true)} className="hover:text-red-600 cursor-pointer">
-                    2. Construction (Turnkey Civil &amp; BOQ)
+                    Construction (Turnkey Civil &amp; BOQ)
                   </button>
                 </li>
                 <li>
                   <button onClick={() => setIsModularKitchenModalOpen(true)} className="hover:text-red-600 cursor-pointer">
-                    3. Interior (Modular Kitchens &amp; 3D)
+                    Interior (Residential &amp; Commercial)
                   </button>
                 </li>
                 <li>
                   <button onClick={() => scrollToServices('all')} className="hover:text-red-600 cursor-pointer">
-                    4. Home Services (9 Categories)
+                    Home Services (9 Categories)
                   </button>
                 </li>
                 <li>
                   <button onClick={() => handleOpenCareModal('explore', 'residential')} className="text-red-600 hover:text-red-700 font-bold cursor-pointer flex items-center gap-1 text-left">
-                    <span>5. Care &amp; Maintenance (HMC, AMC, QMC)</span>
+                    <span>Care &amp; Maintenance (HMC, AMC, QMC)</span>
                   </button>
                 </li>
                 <li className="pt-2 border-t border-stone-200 space-y-1.5">
